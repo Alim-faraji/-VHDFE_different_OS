@@ -1,0 +1,1 @@
+settings_default = @with_kw (yvar = :log_dailywages, idvar = :id, firmidvar = :firmid)
