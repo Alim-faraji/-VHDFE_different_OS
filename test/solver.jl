@@ -16,7 +16,7 @@ settings_CMG = Settings(lls_algorithm = CMGPreconditionedLLS())
     @test lss(settings_direct.lls_algorithm, Xprime, Xprime[1,:], settings_direct) ≈ [0.25; -0.5; -0.25; 0.0; -0.5]
     @test_throws SingularException(6) lss(settings_direct.lls_algorithm, X, X[1,:], settings_direct) 
 
-    #CMGPreconditionedLLS
+    #CMGPreconditionedLLS (using MATLAB; don't run them in CI)
     # @test_throws MATLAB.MEngineError("failed to get variable iter from MATLAB session") lss(settings_CMG.lls_algorithm, Xprime, Xprime[1,:], settings_CMG)  # ≈ [0.25; -0.5; -0.25; 0.0; -0.5]
     # @test_throws MATLAB.MEngineError("failed to get variable iter from MATLAB session") lss(settings_CMG.lls_algorithm, X, X[1,:], settings_CMG)  # ≈ [0.25; -0.5; -0.25; 0.0; -0.5; 0.0]
 end
