@@ -63,7 +63,7 @@ settings_4 = Settings(leverage_algorithm = JLAAlgorithm())
 settings_5 = Settings(leverage_algorithm = JLAAlgorithm(), lls_algorithm = DirectLLS())
 
 
-#Direct Method
+#Direct Method 
 @test lss(settings_1.lls_algorithm, X, X[1,:], settings_1)  ≈ [ 0.5166666666666669 ; -0.23333333333333325 ; 0.01666666666666683; 0.2666666666666666; -0.23333333333333314; 0.26666666666666666]
 
 #AMGPreconditionedLLS
