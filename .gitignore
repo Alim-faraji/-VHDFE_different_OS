@@ -9,3 +9,5 @@ docs/tex/rough_notes.out
 benchmark/tune.json
 benchmark/trial.md
 .vscode
+*.csv
+*.jld
