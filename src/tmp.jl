@@ -1,4 +1,4 @@
 
 function tmp(str)
-    CSV.read(datadeps"$str")
+    CSV.read(datadep"$str")
 end
