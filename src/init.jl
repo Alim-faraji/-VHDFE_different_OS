@@ -1,6 +1,6 @@
 function __init__()
     register(DataDep("VarianceComponentsHDFE",
-        "Downloading medium_main.csv test data",
+        "Downloading medium_main.csv, medium_controls_main.csv, full_main.csv, and full_controls_main.csv test data",
         ["https://vchdfe.s3-us-west-2.amazonaws.com/medium_main.csv.tar.gz",
         "https://vchdfe.s3-us-west-2.amazonaws.com/medium_controls_main.csv.tar.gz",
         "https://vchdfe.s3-us-west-2.amazonaws.com/full_main.csv.tar.gz",
