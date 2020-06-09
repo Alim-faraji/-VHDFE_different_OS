@@ -1,4 +1,4 @@
 
-function tmp(str)
-    CSV.read(datadep"$str")
+function tmp()
+    CSV.read(datadep"medium_main.csv")
 end
