@@ -3,13 +3,11 @@ uuid = "5389702d-ae4e-415f-842d-5a4249ce0a1e"
 authors = ["Various Collaborators"]
 version = "0.1.0"
 
-[compat]
-julia = "1.4"
-
 [deps]
 AlgebraicMultigrid = "2169fc97-5a83-5252-b627-83903c6c433c"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CSVFiles = "5d742f6a-9f54-50ce-8119-2520741973ca"
+DataDeps = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DataFramesMeta = "1313f7d8-7da2-5740-9ea0-a2ca25f37964"
 GraphDataFrameBridge = "3c71623a-a715-5176-9801-629b201a4880"
@@ -24,6 +22,9 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 VectorizedRoutines = "0e69188a-a5d4-5622-b4e4-a72373136fc5"
+
+[compat]
+julia = "1.4"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
