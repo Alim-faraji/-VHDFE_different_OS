@@ -35,3 +35,4 @@ jobs:
       - uses: julia-actions/julia-uploadcodecov@latest
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          VCHDFE_FULL_TEST: 0
