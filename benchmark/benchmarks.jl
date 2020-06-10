@@ -26,3 +26,5 @@ end
 
 # The direct method gives a singular value exception
 # SUITE["Direct LSS Algorithm"] = @benchmarkable lss(settings_direct.lls_algorithm, Xmedium_Laplacian, Xmedium_Laplacian[1,:], settings_direct)
+
+# lss(settings_direct.lls_algorithm, Xmedium_GroundedLaplacian, Xmedium_GroundedLaplacian[i,:], settings_default)
