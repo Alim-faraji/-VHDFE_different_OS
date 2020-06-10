@@ -1,17 +1,13 @@
 using SparseArrays, LinearAlgebra
-using JLD, CSV, DataFrames, DataFramesMeta
+using JLD, CSV, DataFrames, DataFramesMeta, DataDeps
 
 # add in code to generate .jld, .csv, etc. in the benchmark/data directory
 # This should only generate if the file doesn't exist, or if this `force_generate = true`
 force_generate = false
 
 ## Medium-Sized Network Generator
-if isfile("data/test.jld") && ~force_generate
-    data = load("data/test.jld")
-    Xmedium_Laplacian = data["Xmedium_Laplacian"]
-    Xmedium_GroundedLaplacian = data["Xmedium_GroundedLaplacian"]
-else
-    data = CSV.read("../data/test.csv"; header=false)
+
+function compute_X_No_Controls(data)
     data = DataFrame(id = data[:,1], firmid = data[:,2], year = data[:,3], y = data[:,4] )
     sort!(data, (:id, :year))
 
@@ -51,9 +47,22 @@ else
     S= sparse(1.0I, J-1, J-1);
     S=vcat(S,sparse(-zeros(1,J-1)));
 
-    Xmedium_Laplacian = hcat(D, -F)
-    Xmedium_GroundedLaplacian = hcat(D, -F*S)
+    X_Laplacian = hcat(D, -F)
+    X_GroundedLaplacian = hcat(D, -F*S)
+    return X_Laplacian, X_GroundedLaplacian
+end
 
-    # Save the matrices
-    save("data/test.jld", "Xmedium_Laplacian", Xmedium_Laplacian, "Xmedium_GroundedLaplacian", Xmedium_GroundedLaplacian)
+function compute_X_Controls(originalData)
+    # TODO
+end
+
+if ~isfile("data/medium_main.jld") || force_generate
+    data = CSV.read(datadep"VarianceComponentsHDFE/medium_main.csv"; header=false)
+    X_Laplacian, X_GroundedLaplacian = compute_X_No_Controls(data)
+    save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian)
+end
+if ~isfile("data/full_main.jld") || force_generate
+    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=false)
+    X_Laplacian, X_GroundedLaplacian = compute_X_No_Controls(data)
+    save("data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian)
 end
