@@ -8,7 +8,7 @@ force_generate = false
 ## Medium-Sized Network Generator
 
 function compute_X_No_Controls(data)
-    data = DataFrame(id = data[:,1], firmid = data[:,2], year = data[:,3], y = data[:,4] )
+    data = DataFrame(id = data[:,1], firmid = data[:,3], year = data[:,2], y = data[:,4] )
     sort!(data, (:id, :year))
 
     #step 1) LCS
