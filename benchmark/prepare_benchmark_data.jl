@@ -3,7 +3,7 @@ using JLD, CSV, DataFrames, DataFramesMeta, DataDeps
 
 # add in code to generate .jld, .csv, etc. in the benchmark/data directory
 # This should only generate if the file doesn't exist, or if this `force_generate = true`
-force_generate = true
+force_generate = false
 
 ## Medium-Sized Network Generator
 
