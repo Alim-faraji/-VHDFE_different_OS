@@ -22,9 +22,5 @@ idx = [1, 10000, 20000, 30000, 40000, 50000]
 # Setup the benchmark suites for testing the default LSS algorithm
 for i in idx
     SUITE["Default LSS", i] = @benchmarkable lss(settings_default.lls_algorithm, Xmedium_Laplacian, Xmedium_Laplacian[i,:], settings_default)
+    # SUITE["CMG LSS", i] = @benchmarkable lss(settings_CMG.lls_algorithm, Xmedium_Laplacian, Xmedium_Laplacian[i,:], settings_CMG)
 end
-
-# The direct method gives a singular value exception
-# SUITE["Direct LSS Algorithm"] = @benchmarkable lss(settings_direct.lls_algorithm, Xmedium_Laplacian, Xmedium_Laplacian[1,:], settings_direct)
-
-# lss(settings_direct.lls_algorithm, Xmedium_GroundedLaplacian, Xmedium_GroundedLaplacian[i,:], settings_default)
