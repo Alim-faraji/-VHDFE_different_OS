@@ -6,6 +6,16 @@ using JLD, CSV, DataFrames, DataFramesMeta, DataDeps
 force_generate = false
 
 ## Medium-Sized Network Generator
+function rademacher!(R; demean = false)
+    rand!(R)
+    R .= R .> 0.5
+    R .= R - (R .== 0)
+
+    if demean == true
+        R .= R .- mean(R, dims = 1)
+    end
+    return nothing
+end
 
 function compute_X_No_Controls(data)
     data = DataFrame(id = data[:,1], firmid = data[:,3], year = data[:,2], y = data[:,4] )
@@ -36,6 +46,8 @@ function compute_X_No_Controls(data)
     NT=size(y,1);
     J=maximum(firmid);
     N=maximum(id);
+    K = 0
+    nparameters = N + J + K
 
     #Worker Dummies
     D=sparse(collect(1:NT),id,1);
@@ -49,7 +61,22 @@ function compute_X_No_Controls(data)
 
     X_Laplacian = hcat(D, -F)
     X_GroundedLaplacian = hcat(D, -F*S)
-    return X_Laplacian, X_GroundedLaplacian
+
+    p = 500
+    R_p = zeros(p,NT)
+    rademacher!(R_p)
+
+    R_b = zeros(p,NT)
+    rademacher!(R_b, demean=true)
+
+    S_xx = X_GroundedLaplacian'*X_GroundedLaplacian
+
+    X̃ = [sparse(1.0I, NT, N+J-1) X_GroundedLaplacian; X_GroundedLaplacian spzeros(NT, N+J-1)]
+
+    A_d = hcat(D, spzeros(NT, nparameters - N - 1))
+    A_f = hcat(spzeros(NT, N), F * S)
+
+    return X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f
 end
 
 function compute_X_Controls(originalData)
@@ -58,11 +85,12 @@ end
 
 if ~isfile("data/medium_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_main.csv"; header=false)
-    X_Laplacian, X_GroundedLaplacian = compute_X_No_Controls(data)
-    save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian)
+    X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
+    save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
 end
-if ~isfile("data/full_main.jld") || force_generate
-    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=false)
-    X_Laplacian, X_GroundedLaplacian = compute_X_No_Controls(data)
-    save("data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian)
-end
+# TODO: This is throwing a Killed: 9 error
+# if ~isfile("data/full_main.jld") || force_generate
+#    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=false)
+#    X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
+#    save("data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
+# end
