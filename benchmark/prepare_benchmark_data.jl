@@ -88,8 +88,9 @@ if ~isfile("data/medium_main.jld") || force_generate
     X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
     save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
 end
-if ~isfile("data/full_main.jld") || force_generate
-    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=false)
-    X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
-    save("data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
-end
+# TODO: This is throwing a Killed: 9 error
+# if ~isfile("data/full_main.jld") || force_generate
+#    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=false)
+#    X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
+#    save("data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
+# end
