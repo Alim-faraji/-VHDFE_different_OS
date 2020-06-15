@@ -71,7 +71,7 @@ function compute_X_No_Controls(data)
 
     S_xx = X_GroundedLaplacian'*X_GroundedLaplacian
 
-    X̃ = [sparse(1.0I, NT, N+J-1) X_GroundedLaplacian; X_GroundedLaplacian spzeros(NT, N+J-1)]
+    X̃ = [sparse(1.0I, NT, NT) X_GroundedLaplacian; X_GroundedLaplacian' spzeros(N+J-1, N+J-1)]
 
     A_d = hcat(D, spzeros(NT, nparameters - N - 1))
     A_f = hcat(spzeros(NT, N), F * S)
