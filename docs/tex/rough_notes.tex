@@ -319,6 +319,161 @@ Finally, the function $\textit{drop\_single\_obs()}$ will delete the workers tha
 
 
 
+\clearpage
+\section{Linear Algebra Stuff}
+
+Recall that the model of interest is 
+\begin{align*}
+y_{gt} = \alpha_{g} + \psi_{j(g,t)} + x_{gt}' \delta + \varepsilon_{gt}
+\end{align*}
+
+We can define the following matrices 
+\begin{align*}
+    \underbrace{D}_\text{Worker Dummies} &= \underbrace{\begin{bmatrix} \boldsymbol{1}_{\{g=1\}} \iota_n \dots \boldsymbol{1}_{\{g=N\}} \iota_n  \end{bmatrix}}_\text{One non-zero value per row at most} \quad \text{where} \quad \iota_n = (1, \dots, 1) \in \mathbbm{R}^n
+\end{align*}
+
+\begin{align*}
+    \underbrace{F*S}_\text{Firm Dummies} &= \underbrace{\begin{bmatrix} \boldsymbol{1}_{\{j(g,t)=1\}} \iota_n \dots \boldsymbol{1}_{\{j(g,t)=J\}} \iota_n  \end{bmatrix}}_\text{One non-zero value per row at most} * \underbrace{\begin{bmatrix} I_{J-1} & 0 \\ 0 & 0 \end{bmatrix}}_\text{Normalize last firm effect to 0}
+    \quad \text{where} \quad I_{J-1}:= \text{identity matrix}
+\end{align*}
+
+
+\begin{align*}
+    \underbrace{C}_\text{Control Variables} &= \begin{bmatrix} x_1' \\ \vdots \\ x_n'  \end{bmatrix}
+\end{align*}
+
+and write the model in matrix notation
+
+ \begin{align}
+     Y &= \begin{bmatrix} D & F*S & C \end{bmatrix} \begin{bmatrix} \alpha \\ \psi \\ \delta \end{bmatrix} + \varepsilon\\
+     &= X \beta + + \varepsilon
+     \label{eq:matrix}
+\end{align}
+          
+Our quadratic forms of interest are of the form $\theta = \beta' A \beta$ for different choices of matrices $A$. Let $d_i = row_i(D) = (\boldsymbol{1}_{\{j(g,t)=1\}}  \dots \boldsymbol{1}_{\{j(g,t)=J\}})'$,  $f_i = row_i(F) = (\boldsymbol{1}_{\{j(g,t)=1\}} \dots \boldsymbol{1}_{\{j(g,t)=J\}} )'$, and denote $\Bar{d}$ and $\Bar{f}$ as the sample means. The $A$ matrices that we're interested in are the following three:
+
+\begin{align*}
+A_{\psi} = \begin{bmatrix}
+0 & 0 & 0\\
+0 & A_{ff} & 0\\
+0 & 0 & 0
+\end{bmatrix} \quad \text{where} \quad A_{ff} = \frac{1}{n} \sum_{i=1}^n (f_i - \Bar{f})(f_i - \Bar{f})'
+\end{align*}
+
+\begin{align*}
+A_{\alpha,\psi} = \begin{bmatrix}
+0 & A_{df} & 0\\
+A_{df}' & 0 & 0\\
+0 & 0 & 0
+\end{bmatrix} \quad \text{where} \quad A_{df} = \frac{1}{n} \sum_{i=1}^n (d_i - \Bar{d})(f_i - \Bar{f})'
+\end{align*}
+
+\begin{align*}
+A_{\alpha} = \begin{bmatrix}
+A_{dd} & 0 & 0\\
+0 & 0 & 0\\
+0 & 0 & 0
+\end{bmatrix} \quad \text{where} \quad A_{dd} = \frac{1}{n} \sum_{i=1}^n (d_i - \Bar{d})(d_i - \Bar{d})'
+\end{align*}
+
+The code uses the following representation to facilitate the computation of such matrices: 
+
+\begin{align*}
+    A_\phi &= A_f'A_f\\
+    A_\alpha &= A_d'A_d\\
+    A_{\alpha,\phi} &= \frac{1}{2} (A_f'A_d + A_d'A_f)
+\end{align*}
+
+where
+
+\begin{equation}
+    A_f = n^{-1/2} \begin{bmatrix}
+0 & f_1 - \Bar{f} & 0\\
+0 & \dots & 0\\
+0 & f_n - \Bar{f} & 0 
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    A_d = n^{-1/2} \begin{bmatrix}
+d_1 - \Bar{d} & 0 & 0\\
+\dots & 0 & 0\\
+d_n - \Bar{d} & 0 & 0 
+\end{bmatrix}
+\end{equation}
+
+The systems that we want to solve are then the following
+
+\begin{equation}
+    \underbrace{S_{xx}}_{k\times k} \underbrace{Z_{exact}}_{k\times n}  = \underbrace{ X'}_{k\times n}
+\label{eq:exact}
+\end{equation}
+
+\begin{equation}
+    \underbrace{S_{xx}}_{k\times k} \underbrace{Z_{JLA}^0}_{k\times p}  = \underbrace{(R_p *X)'}_{k\times p}
+    \label{eq:JLA1}
+\end{equation}
+
+\begin{equation}
+    \underbrace{S_{xx}}_{k\times k} \underbrace{Z_{JLA}^1}_{k\times p}  = \underbrace{(R_b *A_f)'}_{k\times p}
+        \label{eq:JLA2}
+\end{equation}
+
+\begin{equation}
+    \underbrace{S_{xx}}_{k\times k} \underbrace{Z_{JLA}^2}_{k\times p}  = \underbrace{(R_b *A_d)'}_{k\times p}
+        \label{eq:JLA3}
+\end{equation}
+
+\noindent where $S_{xx} = X'X$, and $R_b$, $R_p$ are two independent $p\times n$ matrices with Rademacher entries. 
+
+
+\noindent Notice that the operation $R_b *A_f$ is equivalent to "de-meaning" the Rademacher matrix instead of the $A$ matrix. In other words, we redefine
+
+\begin{align}
+    R_b =  R_b .- \text{mean}(R, dims=2)   
+\end{align}
+
+\begin{align}
+    A_d =  \begin{bmatrix}
+d_1  & 0 & 0\\
+\dots & 0 & 0\\
+d_n  & 0 & 0 
+\end{bmatrix} =   \begin{bmatrix} D & F*S * 0 & C*0 \end{bmatrix} =  \begin{bmatrix} D & 0 & 0 \end{bmatrix}
+\end{align}
+
+\begin{align}
+    A_f =  \begin{bmatrix}
+0 & f_1  & 0\\
+0 & \dots & 0\\
+0 & f_n  & 0 
+\end{bmatrix} =   \begin{bmatrix} D*0 & F*S & C*0 \end{bmatrix} =  \begin{bmatrix} 0 & F*S & 0 \end{bmatrix}
+\end{align}
+
+\noindent where $A_d$ and $A_f$ are now just taking one block from the $X$ matrix shown in Equation 2 and filling the rest of the entries with zeros.
+
+\vspace{0.5cm}
+
+\noindent Finally, Equations 5 and 6 can be written in terms of an augmented system :
+
+\begin{equation}
+  \begin{bmatrix}
+I & X \\
+X' & 0  
+\end{bmatrix}  \begin{bmatrix} U \\ Z_{exact} \end{bmatrix} = \begin{bmatrix} I_{n\times n} \\ 0 \end{bmatrix}
+\label{aug:exact}
+\end{equation}
+
+
+\begin{equation}
+  \begin{bmatrix}
+I & X \\
+X' & 0  
+\end{bmatrix}  \begin{bmatrix} U \\ Z_{JLA}^0 \end{bmatrix} = \begin{bmatrix} R_p' \\ 0 \end{bmatrix}
+\label{aug:JLA1}
+\end{equation}
+
+\noindent where $U$ is the matrix of residuals and $Z$ is the matrix of solutions that we're interested in. We are currently unsure whether we can write Equations 7 and 8 in terms of an augmented system.
+
 
 
 \end{document}
