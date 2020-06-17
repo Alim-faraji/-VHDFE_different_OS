@@ -15,6 +15,7 @@ medium_data = load("data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
 X̃ = medium_data["X_tilde"]
 S_xx = medium_data["S_xx"]
+X̃_regularized = medium_data["X_tilde_regularized"]
 
 const SUITE = BenchmarkGroup()
 
@@ -82,6 +83,8 @@ qrX̃_reg = qr(X̃_regularized)
 SUITE["X_tilde_reg direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $RHS_aug)
 SUITE["X_tilde_reg direct solve: LU"] = @benchmarkable \($luX̃_reg, $RHS_aug)
 SUITE["X_tilde_reg direct solve: QR"] = @benchmarkable \($qrX̃_reg, $RHS_aug)
+
+SUITE["X_tilde_reg inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $RHS_aug)
 
 # Non-inplace factorizations of the regularized augmented system X̃
 SUITE["X_tilde_reg factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized)
