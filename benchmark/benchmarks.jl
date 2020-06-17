@@ -2,6 +2,7 @@ using VarianceComponentsHDFE
 using Random, BenchmarkTools, Test
 using JLD, SparseArrays, LinearAlgebra
 using AlgebraicMultigrid, IterativeSolvers
+using LDLFactorizations
 
 # Entry point for the PkgBenchmarks call.  Can split into different files later.
 include("prepare_benchmark_data.jl")
@@ -78,15 +79,19 @@ SUITE["S_xx precondition: AMG ruge_stuben"] = @benchmarkable aspreconditioner(ru
 ldltX̃_reg = ldlt(X̃_regularized)
 luX̃_reg = lu(X̃_regularized)
 qrX̃_reg = qr(X̃_regularized)
+ldlX̃_reg = ldl(X̃_regularized)
 
 # Direct methods on the regularized augmented X̃_regularized
 SUITE["X_tilde_reg direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $RHS_aug)
 SUITE["X_tilde_reg direct solve: LU"] = @benchmarkable \($luX̃_reg, $RHS_aug)
 SUITE["X_tilde_reg direct solve: QR"] = @benchmarkable \($qrX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $RHS_aug)
 
+SUITE["X_tilde_reg inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $RHS_aug)
 SUITE["X_tilde_reg inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $RHS_aug)
 
 # Non-inplace factorizations of the regularized augmented system X̃
 SUITE["X_tilde_reg factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized)
 SUITE["X_tilde_reg factorization: LU"] = @benchmarkable lu($X̃_regularized)
 SUITE["X_tilde_reg factorization: QR"] = @benchmarkable qr($X̃_regularized)
+SUITE["X_tilde_reg factorization: LDL"] = @benchmarkable ldl($X̃_regularized)
