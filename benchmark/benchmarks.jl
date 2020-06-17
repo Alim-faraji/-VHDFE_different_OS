@@ -72,3 +72,18 @@ SUITE["S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $RHS, Pl = $P
 
 # Computation of the preconditioner
 SUITE["S_xx precondition: AMG ruge_stuben"] = @benchmarkable aspreconditioner(ruge_stuben($S_xx))
+
+# Prepapre for direct method (augmented system) benchmarks
+ldltX̃_reg = ldlt(X̃_regularized)
+luX̃_reg = lu(X̃_regularized)
+qrX̃_reg = qr(X̃_regularized)
+
+# Direct methods on the regularized augmented X̃_regularized
+SUITE["X_tilde_reg direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg direct solve: LU"] = @benchmarkable \($luX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg direct solve: QR"] = @benchmarkable \($qrX̃_reg, $RHS_aug)
+
+# Non-inplace factorizations of the regularized augmented system X̃
+SUITE["X_tilde_reg factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized)
+SUITE["X_tilde_reg factorization: LU"] = @benchmarkable lu($X̃_regularized)
+SUITE["X_tilde_reg factorization: QR"] = @benchmarkable qr($X̃_regularized)
