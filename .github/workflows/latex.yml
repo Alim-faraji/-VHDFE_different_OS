@@ -13,7 +13,7 @@ jobs:
       - name: download paper repo
         uses: actions/checkout@v2
       - name: build pdf 
-        uses: xu-cheng/latex-action@1.3.0
+        uses: xu-cheng/latex-action@v2
         with:
           root_file: rough_notes.tex
           working_directory: docs/tex 
