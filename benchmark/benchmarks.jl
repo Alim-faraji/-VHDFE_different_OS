@@ -2,6 +2,7 @@ using VarianceComponentsHDFE
 using Random, BenchmarkTools, Test
 using JLD, SparseArrays, LinearAlgebra
 using AlgebraicMultigrid, IterativeSolvers
+# Make sure LDLFactorizations is version 0.5.0
 using LDLFactorizations
 
 # Entry point for the PkgBenchmarks call.  Can split into different files later.
