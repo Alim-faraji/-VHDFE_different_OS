@@ -1,13 +1,13 @@
 # VarianceComponentsHDFE
 
-[![Build Status](https://github.com/jlperla/VarianceComponentsHDFE.jl/workflows/CI/badge.svg)](https://github.com/jlperla/VarianceComponentsHDFE.jl/actions)
-![LaTeX](https://github.com/jlperla/VarianceComponentsHDFE.jl/workflows/LaTeX/badge.svg)
-[![Coverage](https://codecov.io/gh/jlperla/VarianceComponentsHDFE.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jlperla/VarianceComponentsHDFE.jl)
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jlperla.github.io/VarianceComponentsHDFE.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jlperla.github.io/VarianceComponentsHDFE.jl/dev)
+[![Build Status](https://github.com/HighDimensionalEconLab/VarianceComponentsHDFE.jl/workflows/CI/badge.svg)](https://github.com/HighDimensionalEconLab/VarianceComponentsHDFE.jl/actions)
+![LaTeX](https://github.com/HighDimensionalEconLab/VarianceComponentsHDFE.jl/workflows/LaTeX/badge.svg)
+[![Coverage](https://codecov.io/gh/HighDimensionalEconLab/VarianceComponentsHDFE.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/HighDimensionalEconLab/VarianceComponentsHDFE.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://HighDimensionalEconLab.github.io/VarianceComponentsHDFE.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://HighDimensionalEconLab.github.io/VarianceComponentsHDFE.jl/dev)
 
 
-- [Rough Notes](https://github.com/jlperla/VarianceComponentsHDFE.jl/blob/gh_actions_builds/rough_notes.pdf)
+- [Rough Notes](https://github.com/HighDimensionalEconLab/VarianceComponentsHDFE.jl/blob/gh_actions_builds/rough_notes.pdf)
 
 ## Code Style
 - Use the unicode and/or math symbol matching the algebra whenever possible

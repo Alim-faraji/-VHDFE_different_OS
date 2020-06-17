@@ -4,11 +4,11 @@ using Documenter
 makedocs(;
     modules=[VarianceComponentsHDFE],
     authors="Various Collaborators",
-    repo="https://github.com/jlperla/VarianceComponentsHDFE.jl/blob/{commit}{path}#L{line}",
+    repo="https://github.com/HighDimensionalEconLab/VarianceComponentsHDFE.jl/blob/{commit}{path}#L{line}",
     sitename="VarianceComponentsHDFE.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://jlperla.github.io/VarianceComponentsHDFE.jl",
+        canonical="https://HighDimensionalEconLab.github.io/VarianceComponentsHDFE.jl",
         assets=String[],
     ),
     pages=[
@@ -17,5 +17,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/jlperla/VarianceComponentsHDFE.jl",
+    repo="github.com/HighDimensionalEconLab/VarianceComponentsHDFE.jl",
 )
