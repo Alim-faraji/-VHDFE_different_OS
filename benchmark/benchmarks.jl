@@ -2,11 +2,10 @@ using VarianceComponentsHDFE
 using Random, BenchmarkTools, Test
 using JLD, SparseArrays, LinearAlgebra
 using AlgebraicMultigrid, IterativeSolvers
-
 # Make sure LDLFactorizations is version 0.5.0 and that the `multiple-rhs` branch is checked out
 using LDLFactorizations
 
-use_matlabCMG = false
+use_matlabCMG = true
 if use_matlabCMG
     using Laplacians, Pkg
     include(string(Pkg.dir("Laplacians") , "/src/matlabSolvers.jl"))
@@ -21,6 +20,7 @@ X = medium_data["X_GroundedLaplacian"]
 X̃ = medium_data["X_tilde"]
 S_xx = medium_data["S_xx"]
 X̃_regularized = medium_data["X_tilde_regularized"]
+R_p = medium_data["R_p"]
 
 const SUITE = BenchmarkGroup()
 
@@ -29,7 +29,7 @@ m,k = size(X)
 luX̃ = lu(X̃)
 qrX̃ = qr(X̃)
 Rz = zeros(m+k)
-# RHS_aug is the first column of the kxk identity augmented by m zeros
+# RHS_aug is the first column of the mxm identity augmented by k zeros
 RHS_aug = zeros(m+k)
 RHS_aug[1] = 1.0
 
@@ -80,9 +80,45 @@ SUITE["X_tilde_reg factorization: LU"] = @benchmarkable lu($X̃_regularized)
 SUITE["X_tilde_reg factorization: QR"] = @benchmarkable qr($X̃_regularized)
 SUITE["X_tilde_reg factorization: LDL"] = @benchmarkable ldl($X̃_regularized)
 
+# TODO: Move around factorizations/preconditioners since they are independent of the RHS
 
-##
+## JLA problem with a single RHS
+# JLA_RHS_aug is the first column of the mxm identity augmented by k zeros
+JLA_RHS_aug = zeros(m+k)
+JLA_RHS_aug[1:m] = R_p[1,:]
 
-# TODO: JLA problem single RHS
-# TODO: JLA problem multiple RHS
+# Direct methods on the augmented system X̃
+SUITE["JLA: X_tilde inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃, $JLA_RHS_aug)
+
+# Non-inplace direct methods on the augmented system X̃
+SUITE["JLA: X_tilde direct solve"] = @benchmarkable \($X̃, $JLA_RHS_aug)
+SUITE["JLA: X_tilde direct solve: LU"] = @benchmarkable \($luX̃, $JLA_RHS_aug)
+SUITE["JLA: X_tilde direct solve: QR"] = @benchmarkable \($qrX̃, $JLA_RHS_aug)
+
+# Prepare for direct method benchmarks
+# JLA_RHS is not too sparse, so we benchmark both the sparse and non-sparse representation
+JLA_RHS = (R_p*X)[1,:]
+JLA_RHS_sparse =  SparseMatrixCSC{Float64,Int64}(sparse(JLA_RHS))
+z = 0.1.*ones(length(JLA_RHS))
+
+# Iterative methods on the original system S_xx
+SUITE["JLA: S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS, Pl = $P , log=true, maxiter=300)
+SUITE["JLA: S_xx iterative solve: AMG, sparse RHS"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS_sparse, Pl = $P , log=true, maxiter=300)
+if use_matlabCMG
+    SUITE["JLA: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS; tol=1e-6, maxits=300)
+    SUITE["JLA: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS_sparse; tol=1e-6, maxits=300)
+end
+
+# Direct methods on the regularized augmented X̃_regularized
+SUITE["JLA: X_tilde_reg direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $JLA_RHS_aug)
+SUITE["JLA: X_tilde_reg direct solve: LU"] = @benchmarkable \($luX̃_reg, $JLA_RHS_aug)
+SUITE["JLA: X_tilde_reg direct solve: QR"] = @benchmarkable \($qrX̃_reg, $JLA_RHS_aug)
+SUITE["JLA: X_tilde_reg direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $JLA_RHS_aug)
+
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug)
+SUITE["JLA: X_tilde_reg inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $JLA_RHS_aug)
+
+## LDL Factorization (regularized augmented system) with multiplce right hand sides
+# TODO
+
 # TODO JLA problem loop using iterative solver
