@@ -4,9 +4,12 @@ using JLD, SparseArrays, LinearAlgebra
 using AlgebraicMultigrid, IterativeSolvers
 # Make sure LDLFactorizations is version 0.5.0
 using LDLFactorizations
-using Laplacians, Pkg
 
-include(string(Pkg.dir("Laplacians") , "/src/matlabSolvers.jl"))
+use_matlabCMG = false
+if use_matlabCMG
+    using Laplacians, Pkg
+    include(string(Pkg.dir("Laplacians") , "/src/matlabSolvers.jl"))
+end
 
 # Entry point for the PkgBenchmarks call.  Can split into different files later.
 include("prepare_benchmark_data.jl")
@@ -48,7 +51,9 @@ z = 0.1.*ones(length(RHS))
 
 # Iterative methods on the original system S_xx
 SUITE["S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $RHS, Pl = $P , log=true, maxiter=300)
-SUITE["S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $RHS; tol=1e-6, maxits=300)
+if use_matlabCMG
+    SUITE["S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $RHS; tol=1e-6, maxits=300)
+end
 
 # Computation of the preconditioner
 SUITE["S_xx precondition: AMG ruge_stuben"] = @benchmarkable aspreconditioner(ruge_stuben($S_xx))
