@@ -12,10 +12,6 @@ include(string(Pkg.dir("Laplacians") , "/src/matlabSolvers.jl"))
 include("prepare_benchmark_data.jl")
 # NOTE: Suite below can assume that the `benchmark/data/...` has been filled
 
-settings_default = Settings()
-settings_direct = Settings(lls_algorithm = DirectLLS())
-settings_CMG = Settings(lls_algorithm = CMGPreconditionedLLS())
-
 medium_data = load("data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
 X̃ = medium_data["X_tilde"]
