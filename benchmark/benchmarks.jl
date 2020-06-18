@@ -24,28 +24,6 @@ X̃_regularized = medium_data["X_tilde_regularized"]
 
 const SUITE = BenchmarkGroup()
 
-# Computation of S_xx
-# SUITE["Compute S_xx"] = @benchmarkable mul!($S_xx, $X', $X)
-
-# Factorizations of X̃
-
-#SUITE["LDL factorization for regulatized system"]
-
-# Factorizations of X̃
-# SUITE["S_xx LU factorization"] = @benchmarkable lu($S_xx)
-# SUITE["S_xx QR factorization"] = @benchmarkable qr($S_xx)
-# SUITE["S_xx cholesky factorization"] = @benchmarkable cholesky($S_xx)
-#SUITE["LDL factorization for regulatized system"]
-
-# Direct Solvers for S_xx
-# RHS = X[1,:]
-# SUITE["S_xx direct solve"] = @benchmarkable \($S_xx, $RHS)
-# SUITE["S_xx LU factored inplace direct solve"] = @benchmarkable ldiv!($z, $luS_xx, $RHS)
-# SUITE["S_xx LU factored direct solve"] = @benchmarkable \($luS_xx, $RHS)
-# SUITE["S_xx QR factored direct solve"] = @benchmarkable \($qrS_xx, $RHS)
-# SUITE["S_xx cholesky factored direct solve"] = @benchmarkable \($cholS_xx, $RHS)
-
-
 # Prepare for direct method benchmarks
 m,k = size(X)
 luX̃ = lu(X̃)
@@ -68,7 +46,6 @@ SUITE["X_tilde factorization: LU"] = @benchmarkable lu($X̃)
 SUITE["X_tilde factorization: QR"] = @benchmarkable qr($X̃)
 
 # Prepare for direct method benchmarks
-S_xx
 P = aspreconditioner(ruge_stuben(S_xx))
 RHS = SparseMatrixCSC{Float64,Int64}(X[1,:])
 z = 0.1.*ones(length(RHS))
