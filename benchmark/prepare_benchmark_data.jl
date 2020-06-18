@@ -107,8 +107,6 @@ function compute_X_Controls(data)
     firmid = indexin(temp,unique(sort(temp)))
     id = convert(Array{Int64,1},kss_data.id)
 
-    controls = hcat(data[kss_data.obs_id,5], data[kss_data.obs_id,6])
-
     NT=size(y,1);
     J=maximum(firmid);
     N=maximum(id);
@@ -126,7 +124,7 @@ function compute_X_Controls(data)
     S=vcat(S,sparse(-zeros(1,J-1)));    
 
     #Assuming columns 5 and 6 are the controls
-    controls = hcat(data[kss_data.obs_id,5], data[kss_data.obs_id,6])
+    controls = hcat(data.control1[kss_data.obs_id], data.control2[kss_data.obs_id])
     
     Xcontrols = hcat(D,F*S,controls)
     S_xx = Xcontrols'*Xcontrols
