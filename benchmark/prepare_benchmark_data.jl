@@ -81,7 +81,7 @@ function compute_X_No_Controls(data)
     return X_Laplacian, X_GroundedLaplacian, S_xx, X̃, X̃_regularized, R_p, R_b, A_d, A_f
 end
 
-function compute_X_Controls(originalData)
+function compute_X_Controls(data)
     data = DataFrame(id = data[:,1], firmid = data[:,3], year = data[:,2], y = data[:,4], control1 =data[:,5], control2=data[:,6] )
     sort!(data, (:id, :year))
 
@@ -147,6 +147,7 @@ function compute_X_Controls(originalData)
     A_f = hcat(spzeros(NT,N), F*S, spzeros(NT,nparameters-N-J) )
 
     return Xcontrols, S_xx, X̃, X̃_regularized , R_p, R_b, A_d, A_f
+
 end
 
 if ~isfile("data/medium_main.jld") || force_generate
