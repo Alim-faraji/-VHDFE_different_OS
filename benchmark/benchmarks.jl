@@ -2,7 +2,8 @@ using VarianceComponentsHDFE
 using Random, BenchmarkTools, Test
 using JLD, SparseArrays, LinearAlgebra
 using AlgebraicMultigrid, IterativeSolvers
-# Make sure LDLFactorizations is version 0.5.0
+
+# Make sure LDLFactorizations is version 0.5.0 and that the `multiple-rhs` branch is checked out
 using LDLFactorizations
 
 use_matlabCMG = false
@@ -78,3 +79,10 @@ SUITE["X_tilde_reg factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized)
 SUITE["X_tilde_reg factorization: LU"] = @benchmarkable lu($X̃_regularized)
 SUITE["X_tilde_reg factorization: QR"] = @benchmarkable qr($X̃_regularized)
 SUITE["X_tilde_reg factorization: LDL"] = @benchmarkable ldl($X̃_regularized)
+
+
+##
+
+# TODO: JLA problem single RHS
+# TODO: JLA problem multiple RHS
+# TODO JLA problem loop using iterative solver
