@@ -155,7 +155,7 @@ if ~isfile("data/medium_main.jld") || force_generate
 end
 
 if ~isfile("data/medium_controls_main.jld") || force_generate
-    data = CSV.read(datadep"VarianceComponentsHDFE/medium_controls_main.csv"; header=false)
+    data = CSV.read(datadep"VarianceComponentsHDFE/medium_controls_main.csv"; header=true)
     Xcontrols, S_xx, X̃, X̃_regularized , R_p, R_b, A_d, A_f = compute_X_Controls(data)
     save("data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
 end
