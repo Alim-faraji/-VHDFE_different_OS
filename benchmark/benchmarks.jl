@@ -21,7 +21,7 @@ X = medium_data["X_GroundedLaplacian"]
 m,k = size(X)
 X̃ = Symmetric(UpperTriangular([sparse(1.0I, m,m ) X; spzeros(k,m) spzeros(k, k)])) 
 S_xx = medium_data["S_xx"]
-X̃_regularized = [sparse(1.0I, m,m) X; X' sparse(-μ*I,k, k)]
+X̃_regularized = Symmetric([sparse(1.0I, m,m) X; X' sparse(-μ*I,k, k)])
 
 max_rhs = 200
 R_p = bitrand(max_rhs,m)
@@ -161,7 +161,7 @@ Xcontrols = medium_controls_data["Xcontrols"]
 m,k = size(Xcontrols)
 X̃_controls = Symmetric(UpperTriangular([sparse(1.0I, m,m ) Xcontrols; spzeros(k,m) spzeros(k, k)])) 
 S_xx_controls = medium_controls_data["S_xx"]
-X̃_regularized_controls = [sparse(1.0I, m,m) Xcontrols; Xcontrols' sparse(-μ*I,k, k)]
+X̃_regularized_controls = Symmetric([sparse(1.0I, m,m) Xcontrols; Xcontrols' sparse(-μ*I,k, k)])
 
 # Prepare for direct method benchmarks
 luX̃ = lu(X̃_controls)
