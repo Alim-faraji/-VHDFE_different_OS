@@ -62,14 +62,6 @@ function compute_X_No_Controls(data)
 
     S_xx = X_GroundedLaplacian'*X_GroundedLaplacian
 
-    #X̃ = [sparse(1.0I, NT, NT) X_GroundedLaplacian; X_GroundedLaplacian' spzeros(N+J-1, N+J-1)]
-    #μ = sqrt(eps())
-    #X̃_regularized = [sparse(1.0I, NT, NT) X_GroundedLaplacian; X_GroundedLaplacian' sparse(-μ*I,N+J-1, N+J-1)]
-
-    #A_d = hcat(D, spzeros(NT, nparameters - N - 1))
-    #A_f = hcat(spzeros(NT, N), F * S)
-
-    #return X_Laplacian, X_GroundedLaplacian, S_xx, X̃, X̃_regularized
     return X_Laplacian, X_GroundedLaplacian, S_xx
 end
 
@@ -121,38 +113,25 @@ function compute_X_Controls(data)
     Xcontrols = hcat(D,F*S,controls)
     S_xx = Xcontrols'*Xcontrols
 
-    #X̃ = [sparse(1.0I, NT, NT) Xcontrols; Xcontrols' spzeros(nparameters-1, nparameters-1)]
-    #μ = sqrt(eps())
-
-    #X̃_regularized = [sparse(1.0I, NT, NT) Xcontrols; Xcontrols' sparse(-μ*I,nparameters-1, nparameters-1)]
-
-    #A_d =  hcat( D, spzeros(NT,nparameters-N-1) )
-    #A_f = hcat(spzeros(NT,N), F*S, spzeros(NT,nparameters-N-J) )
-
-    #return Xcontrols, S_xx, X̃, X̃_regularized 
     return Xcontrols, S_xx
 end
 
 if ~isfile("data/medium_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_main.csv"; header=false)
-    #X_Laplacian, X_GroundedLaplacian, S_xx, X̃, X̃_regularized, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
     X_Laplacian, X_GroundedLaplacian, S_xx = compute_X_No_Controls(data)
-    #save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
     save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
 end
 
 if ~isfile("data/medium_controls_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_controls_main.csv"; header=true)
-    #Xcontrols, S_xx, X̃, X̃_regularized , R_p, R_b, A_d, A_f = compute_X_Controls(data)
     Xcontrols, S_xx = compute_X_Controls(data)
-    #save("data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
     save("data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
 end
 
 
 # TODO: This is throwing a Killed: 9 error
 # if ~isfile("data/full_main.jld") || force_generate
-#    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=false)
+#    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=true)
 #    X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
 #    save("data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
 # end
