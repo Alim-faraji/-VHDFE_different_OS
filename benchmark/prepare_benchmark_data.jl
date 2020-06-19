@@ -17,7 +17,7 @@ end
 
 function compute_X_No_Controls(data)
     data = DataFrame(id = data[:,1], firmid = data[:,3], year = data[:,2], y = data[:,4] )
-    sort!(data, (:id, :year))
+    sort!(data, [:id, :year])
 
     #step 1) LCS
     y = data.y
@@ -67,7 +67,7 @@ end
 
 function compute_X_Controls(data)
     data = DataFrame(id = data[:,1], firmid = data[:,3], year = data[:,2], y = data[:,4], control1 =data[:,5], control2=data[:,6] )
-    sort!(data, (:id, :year))
+    sort!(data, [:id, :year])
 
     #step 1) LCS
     y = data.y
