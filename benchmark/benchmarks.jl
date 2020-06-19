@@ -19,7 +19,7 @@ include("prepare_benchmark_data.jl")
 medium_data = load("data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
 m,k = size(X)
-X̃ = Symmetric(UpperTriangular([sparse(1.0I, m,m ) X; spzeros(k,m) spzeros(k, k)])) 
+X̃ = Symmetric(sparse(UpperTriangular([sparse(1.0I, m,m ) X; spzeros(k,m) spzeros(k, k)]))) 
 S_xx = medium_data["S_xx"]
 X̃_regularized = Symmetric([sparse(1.0I, m,m) X; X' sparse(-μ*I,k, k)])
 

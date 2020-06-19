@@ -60,7 +60,7 @@ function compute_X_No_Controls(data)
     X_Laplacian = hcat(D, -F)
     X_GroundedLaplacian = hcat(D, -F*S)
 
-    S_xx = X_GroundedLaplacian'*X_GroundedLaplacian
+    S_xx = Symmetric(X_GroundedLaplacian'*X_GroundedLaplacian)
 
     return X_Laplacian, X_GroundedLaplacian, S_xx
 end
@@ -111,7 +111,7 @@ function compute_X_Controls(data)
     controls = hcat(data.control1[kss_data.obs_id], data.control2[kss_data.obs_id])
     
     Xcontrols = hcat(D,F*S,controls)
-    S_xx = Xcontrols'*Xcontrols
+    S_xx = Symmetric(Xcontrols'*Xcontrols)
 
     return Xcontrols, S_xx
 end
