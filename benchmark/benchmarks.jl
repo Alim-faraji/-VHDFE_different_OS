@@ -148,8 +148,7 @@ JLA_RHS_aug_m[1:m,1:200] = R_p[1:200,:]'
 Rz = zeros(size(JLA_RHS_aug_m))
 SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 200"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
 
-# TODO JLA problem loop using iterative solver
-
+# TODO JLA problem loop using iterative solver to compare against multiple RHS at the same time
 
 ##Medium Data with controls
 
@@ -199,16 +198,16 @@ qrX̃_reg = qr(X̃_regularized_controls)
 ldlX̃_reg = ldl(X̃_regularized_controls)
 
 # Direct methods on the regularized augmented X̃_regularized
-SUITE["X_tilde_reg direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $RHS_aug)
-SUITE["X_tilde_reg direct solve: LU"] = @benchmarkable \($luX̃_reg, $RHS_aug)
-SUITE["X_tilde_reg direct solve: QR"] = @benchmarkable \($qrX̃_reg, $RHS_aug)
-SUITE["X_tilde_reg direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls direct solve: LU"] = @benchmarkable \($luX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls direct solve: QR"] = @benchmarkable \($qrX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $RHS_aug)
 
-SUITE["X_tilde_reg inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $RHS_aug)
-SUITE["X_tilde_reg inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $RHS_aug)
 
 # Non-inplace factorizations of the regularized augmented system X̃
-SUITE["X_tilde_reg factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized_controls)
-SUITE["X_tilde_reg factorization: LU"] = @benchmarkable lu($X̃_regularized_controls)
-SUITE["X_tilde_reg factorization: QR"] = @benchmarkable qr($X̃_regularized_controls)
-SUITE["X_tilde_reg factorization: LDL"] = @benchmarkable ldl($X̃_regularized_controls)
+SUITE["X_tilde_reg_controls factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized_controls)
+SUITE["X_tilde_reg_controls factorization: LU"] = @benchmarkable lu($X̃_regularized_controls)
+SUITE["X_tilde_reg_controls factorization: QR"] = @benchmarkable qr($X̃_regularized_controls)
+SUITE["X_tilde_reg_controls factorization: LDL"] = @benchmarkable ldl($X̃_regularized_controls)
