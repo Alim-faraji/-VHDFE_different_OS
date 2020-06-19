@@ -5,7 +5,7 @@ using AlgebraicMultigrid, IterativeSolvers
 # Make sure LDLFactorizations is version 0.5.0 and that the `multiple-rhs` branch is checked out
 using LDLFactorizations
 
-use_matlabCMG = true
+use_matlabCMG = false
 if use_matlabCMG
     using Laplacians, Pkg
     include(string(Pkg.dir("Laplacians") , "/src/matlabSolvers.jl"))
@@ -119,6 +119,33 @@ SUITE["JLA: X_tilde_reg inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, 
 SUITE["JLA: X_tilde_reg inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $JLA_RHS_aug)
 
 ## LDL Factorization (regularized augmented system) with multiplce right hand sides
-# TODO
+JLA_RHS_aug_m = zeros(m+k,2)
+JLA_RHS_aug_m[1:m,1:2] = R_p[1:2,:]'
+Rz = zeros(size(JLA_RHS_aug_m))
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 2"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
+JLA_RHS_aug_m = zeros(m+k,4)
+JLA_RHS_aug_m[1:m,1:4] = R_p[1:4,:]'
+Rz = zeros(size(JLA_RHS_aug_m))
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 4"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
+JLA_RHS_aug_m = zeros(m+k,8)
+JLA_RHS_aug_m[1:m,1:8] = R_p[1:8,:]'
+Rz = zeros(size(JLA_RHS_aug_m))
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 8"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
+JLA_RHS_aug_m = zeros(m+k,16)
+JLA_RHS_aug_m[1:m,1:16] = R_p[1:16,:]'
+Rz = zeros(size(JLA_RHS_aug_m))
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 16"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
+JLA_RHS_aug_m = zeros(m+k,32)
+JLA_RHS_aug_m[1:m,1:32] = R_p[1:32,:]'
+Rz = zeros(size(JLA_RHS_aug_m))
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 32"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
+JLA_RHS_aug_m = zeros(m+k,64)
+JLA_RHS_aug_m[1:m,1:64] = R_p[1:64,:]'
+Rz = zeros(size(JLA_RHS_aug_m))
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 64"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
+JLA_RHS_aug_m = zeros(m+k,200)
+JLA_RHS_aug_m[1:m,1:200] = R_p[1:200,:]'
+Rz = zeros(size(JLA_RHS_aug_m))
+SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 200"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
 
 # TODO JLA problem loop using iterative solver
