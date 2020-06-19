@@ -148,4 +148,66 @@ JLA_RHS_aug_m[1:m,1:200] = R_p[1:200,:]'
 Rz = zeros(size(JLA_RHS_aug_m))
 SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 200"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
 
-# TODO JLA problem loop using iterative solver
+# TODO JLA problem loop using iterative solver to compare against multiple RHS at the same time
+
+##Medium Data with controls
+
+medium_controls_data = load("data/medium_controls_main.jld")
+Xcontrols = medium_controls_data["Xcontrols"]
+X̃_controls = medium_controls_data["X_tilde"]
+S_xx_controls = medium_controls_data["S_xx"]
+X̃_regularized_controls = medium_controls_data["X_tilde_regularized"]
+
+# Prepare for direct method benchmarks
+m,k = size(Xcontrols)
+luX̃ = lu(X̃_controls)
+qrX̃ = qr(X̃_controls)
+Rz = zeros(m+k)
+# RHS_aug is the first column of the kxk identity augmented by m zeros
+RHS_aug = zeros(m+k)
+RHS_aug[1] = 1.0
+
+
+# Direct methods on the augmented system X̃
+SUITE["X_tilde_controls inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃, $RHS_aug)
+
+# Non-inplace direct methods on the augmented system X̃
+SUITE["X_tilde_controls direct solve"] = @benchmarkable \($X̃_controls, $RHS_aug)
+SUITE["X_tilde_controls direct solve: LU"] = @benchmarkable \($luX̃, $RHS_aug)
+SUITE["X_tilde_controls direct solve: QR"] = @benchmarkable \($qrX̃, $RHS_aug)
+
+# Non-inplace factorizations of the augmented system X̃
+SUITE["X_tilde_controls factorization: LU"] = @benchmarkable lu($X̃_controls)
+SUITE["X_tilde_controls factorization: QR"] = @benchmarkable qr($X̃_controls)
+
+# Prepare for direct method benchmarks
+P = aspreconditioner(ruge_stuben(S_xx_controls))
+RHS = SparseMatrixCSC{Float64,Int64}(Xcontrols[1,:])
+z = 0.1.*ones(length(RHS))
+
+# Iterative methods on the original system S_xx
+SUITE["S_xx_controls iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx_controls, $RHS, Pl = $P , log=true, maxiter=300)
+
+# Computation of the preconditioner
+SUITE["S_xx_controls precondition: AMG ruge_stuben"] = @benchmarkable aspreconditioner(ruge_stuben($S_xx_controls))
+
+# Prepapre for direct method (augmented system) benchmarks
+ldltX̃_reg = ldlt(X̃_regularized_controls)
+luX̃_reg = lu(X̃_regularized_controls)
+qrX̃_reg = qr(X̃_regularized_controls)
+ldlX̃_reg = ldl(X̃_regularized_controls)
+
+# Direct methods on the regularized augmented X̃_regularized
+SUITE["X_tilde_reg_controls direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls direct solve: LU"] = @benchmarkable \($luX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls direct solve: QR"] = @benchmarkable \($qrX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $RHS_aug)
+
+SUITE["X_tilde_reg_controls inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $RHS_aug)
+SUITE["X_tilde_reg_controls inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $RHS_aug)
+
+# Non-inplace factorizations of the regularized augmented system X̃
+SUITE["X_tilde_reg_controls factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized_controls)
+SUITE["X_tilde_reg_controls factorization: LU"] = @benchmarkable lu($X̃_regularized_controls)
+SUITE["X_tilde_reg_controls factorization: QR"] = @benchmarkable qr($X̃_regularized_controls)
+SUITE["X_tilde_reg_controls factorization: LDL"] = @benchmarkable ldl($X̃_regularized_controls)
