@@ -15,17 +15,21 @@ end
 include("prepare_benchmark_data.jl")
 # NOTE: Suite below can assume that the `benchmark/data/...` has been filled
 
+μ = sqrt(eps())
 medium_data = load("data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
-X̃ = medium_data["X_tilde"]
+m,k = size(X)
+X̃ = Symmetric(UpperTriangular([sparse(1.0I, m,m ) X; spzeros(k,m) spzeros(k, k)])) 
 S_xx = medium_data["S_xx"]
-X̃_regularized = medium_data["X_tilde_regularized"]
-R_p = medium_data["R_p"]
+X̃_regularized = [sparse(1.0I, m,m) X; X' sparse(-μ*I,k, k)]
+
+max_rhs = 200
+R_p = bitrand(max_rhs,m)
+rademacher!(R_p)
 
 const SUITE = BenchmarkGroup()
 
 # Prepare for direct method benchmarks
-m,k = size(X)
 luX̃ = lu(X̃)
 qrX̃ = qr(X̃)
 Rz = zeros(m+k)
@@ -118,7 +122,7 @@ SUITE["JLA: X_tilde_reg direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $JLA
 SUITE["JLA: X_tilde_reg inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug)
 SUITE["JLA: X_tilde_reg inplace direct solve: LU"] = @benchmarkable ldiv!($Rz, $luX̃_reg, $JLA_RHS_aug)
 
-## LDL Factorization (regularized augmented system) with multiplce right hand sides
+## LDL Factorization (regularized augmented system) with multiple right hand sides
 JLA_RHS_aug_m = zeros(m+k,2)
 JLA_RHS_aug_m[1:m,1:2] = R_p[1:2,:]'
 Rz = zeros(size(JLA_RHS_aug_m))
@@ -154,12 +158,12 @@ SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 200"] = @benchm
 
 medium_controls_data = load("data/medium_controls_main.jld")
 Xcontrols = medium_controls_data["Xcontrols"]
-X̃_controls = medium_controls_data["X_tilde"]
+m,k = size(Xcontrols)
+X̃_controls = Symmetric(UpperTriangular([sparse(1.0I, m,m ) Xcontrols; spzeros(k,m) spzeros(k, k)])) 
 S_xx_controls = medium_controls_data["S_xx"]
-X̃_regularized_controls = medium_controls_data["X_tilde_regularized"]
+X̃_regularized_controls = [sparse(1.0I, m,m) Xcontrols; Xcontrols' sparse(-μ*I,k, k)]
 
 # Prepare for direct method benchmarks
-m,k = size(Xcontrols)
 luX̃ = lu(X̃_controls)
 qrX̃ = qr(X̃_controls)
 Rz = zeros(m+k)
