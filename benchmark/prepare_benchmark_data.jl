@@ -150,13 +150,13 @@ function compute_X_Controls(data)
 
 end
 
-if ~isfile("benchmark/data/medium_main.jld") || force_generate
+if ~isfile(pkg_dir*"/benchmark/data/medium_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_main.csv"; header=false)
     X_Laplacian, X_GroundedLaplacian, S_xx, X̃, X̃_regularized, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
     save(pkg_dir*"/benchmark/data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
 end
 
-if ~isfile("benchmark/data/medium_controls_main.jld") || force_generate
+if ~isfile(pkg_dir*"/benchmark/data/medium_controls_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_controls_main.csv"; header=true)
     Xcontrols, S_xx, X̃, X̃_regularized , R_p, R_b, A_d, A_f = compute_X_Controls(data)
     save(pkg_dir*"/benchmark/data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
