@@ -5,6 +5,8 @@ using AlgebraicMultigrid, IterativeSolvers
 # Make sure LDLFactorizations is version 0.5.0 and that the `multiple-rhs` branch is checked out
 using LDLFactorizations
 
+pkg_dir = pkgdir(VarianceComponentsHDFE)
+
 use_matlabCMG = false
 if use_matlabCMG
     using Laplacians, Pkg
@@ -15,7 +17,7 @@ end
 include("prepare_benchmark_data.jl")
 # NOTE: Suite below can assume that the `benchmark/data/...` has been filled
 
-medium_data = load("data/medium_main.jld")
+medium_data = load(pkg_dir*"/benchmark/data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
 X̃ = medium_data["X_tilde"]
 S_xx = medium_data["S_xx"]
@@ -152,7 +154,7 @@ SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 200"] = @benchm
 
 ##Medium Data with controls
 
-medium_controls_data = load("data/medium_controls_main.jld")
+medium_controls_data = load(pkg_dir*"/benchmark/data/medium_controls_main.jld")
 Xcontrols = medium_controls_data["Xcontrols"]
 X̃_controls = medium_controls_data["X_tilde"]
 S_xx_controls = medium_controls_data["S_xx"]
