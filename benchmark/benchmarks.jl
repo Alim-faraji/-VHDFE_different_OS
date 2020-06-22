@@ -15,7 +15,7 @@ end
 include("prepare_benchmark_data.jl")
 # NOTE: Suite below can assume that the `benchmark/data/...` has been filled
 
-medium_data = load("data/medium_main.jld")
+medium_data = load("benchmark/data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
 X̃ = medium_data["X_tilde"]
 S_xx = medium_data["S_xx"]
