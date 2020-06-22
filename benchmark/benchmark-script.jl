@@ -5,6 +5,8 @@ using AlgebraicMultigrid, IterativeSolvers
 # Make sure LDLFactorizations is version 0.5.0 and that the `multiple-rhs` branch is checked out
 using LDLFactorizations
 
+pkg_dir = pkgdir(VarianceComponentsHDFE)
+
 use_matlabCMG = false
 if use_matlabCMG
     using Laplacians, Pkg
@@ -14,7 +16,7 @@ end
 # Entry point for the PkgBenchmarks call.  Can split into different files later.
 include("prepare_benchmark_data.jl")
 
-medium_data = load("benchmark/data/medium_main.jld")
+medium_data = load(pkg_dir*"/benchmark/data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
 S_xx = medium_data["S_xx"]
 
