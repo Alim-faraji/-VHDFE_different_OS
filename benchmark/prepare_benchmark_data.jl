@@ -5,6 +5,8 @@ using JLD, CSV, DataFrames, DataFramesMeta, DataDeps
 # This should only generate if the file doesn't exist, or if this `force_generate = true`
 force_generate = false
 
+pkg_dir = pkgdir(VarianceComponentsHDFE)
+
 ## Medium-Sized Network Generator
 function rademacher!(R; demean = false)
     R .= R - (R .== 0)
@@ -105,27 +107,27 @@ function compute_X_Controls(data)
 
     # N+J x N+J-1 restriction matrix
     S= sparse(1.0I, J-1, J-1);
-    S=vcat(S,sparse(-zeros(1,J-1)));    
+    S=vcat(S,sparse(-zeros(1,J-1)));
 
     #Assuming columns 5 and 6 are the controls
     controls = hcat(data.control1[kss_data.obs_id], data.control2[kss_data.obs_id])
-    
+
     Xcontrols = hcat(D,F*S,controls)
     S_xx = Symmetric(Xcontrols'*Xcontrols)
 
     return Xcontrols, S_xx
 end
 
-if ~isfile("data/medium_main.jld") || force_generate
+if ~isfile(pkg_dir*"/benchmark/data/medium_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_main.csv"; header=false)
     X_Laplacian, X_GroundedLaplacian, S_xx = compute_X_No_Controls(data)
-    save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
+    save(pkg_dir*"/benchmark/data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
 end
 
-if ~isfile("data/medium_controls_main.jld") || force_generate
+if ~isfile(pkg_dir*"/benchmark/data/medium_controls_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_controls_main.csv"; header=true)
     Xcontrols, S_xx = compute_X_Controls(data)
-    save("data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
+    save(pkg_dir*"/benchmark/data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
 end
 
 

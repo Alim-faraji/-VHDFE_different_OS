@@ -5,6 +5,8 @@ using AlgebraicMultigrid, IterativeSolvers
 # Make sure LDLFactorizations is version 0.5.0 and that the `multiple-rhs` branch is checked out
 using LDLFactorizations
 
+pkg_dir = pkgdir(VarianceComponentsHDFE)
+
 use_matlabCMG = false
 if use_matlabCMG
     using Laplacians, Pkg
@@ -16,7 +18,7 @@ include("prepare_benchmark_data.jl")
 # NOTE: Suite below can assume that the `benchmark/data/...` has been filled
 
 μ = sqrt(eps())
-medium_data = load("data/medium_main.jld")
+medium_data = load(pkg_dir*"/benchmark/data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
 m,k = size(X)
 X̃ = Symmetric( [sparse(1.0I, m,m ) X; spzeros(k,m) spzeros(k, k)])
@@ -157,10 +159,10 @@ SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 200"] = @benchm
 
 ##Medium Data with controls
 
-medium_controls_data = load("data/medium_controls_main.jld")
+medium_controls_data = load(pkg_dir*"/benchmark/data/medium_controls_main.jld")
 Xcontrols = medium_controls_data["Xcontrols"]
 m,k = size(Xcontrols)
-X̃_controls = Symmetric(UpperTriangular([sparse(1.0I, m,m ) Xcontrols; spzeros(k,m) spzeros(k, k)])) 
+X̃_controls = Symmetric(UpperTriangular([sparse(1.0I, m,m ) Xcontrols; spzeros(k,m) spzeros(k, k)]))
 S_xx_controls = medium_controls_data["S_xx"]
 X̃_regularized_controls = Symmetric([sparse(1.0I, m,m) Xcontrols; Xcontrols' sparse(-μ*I,k, k)])
 
