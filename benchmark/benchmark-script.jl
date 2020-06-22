@@ -15,6 +15,7 @@ end
 include("prepare_benchmark_data.jl")
 
 medium_data = load("benchmark/data/medium_main.jld")
+X = medium_data["X_GroundedLaplacian"]
 S_xx = medium_data["S_xx"]
 
 
