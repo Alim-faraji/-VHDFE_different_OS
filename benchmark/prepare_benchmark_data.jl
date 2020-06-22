@@ -121,11 +121,11 @@ function compute_X_Controls(data)
 
     # N+J x N+J-1 restriction matrix
     S= sparse(1.0I, J-1, J-1);
-    S=vcat(S,sparse(-zeros(1,J-1)));    
+    S=vcat(S,sparse(-zeros(1,J-1)));
 
     #Assuming columns 5 and 6 are the controls
     controls = hcat(data.control1[kss_data.obs_id], data.control2[kss_data.obs_id])
-    
+
     Xcontrols = hcat(D,F*S,controls)
     S_xx = Xcontrols'*Xcontrols
 
@@ -151,13 +151,13 @@ end
 if ~isfile("data/medium_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_main.csv"; header=false)
     X_Laplacian, X_GroundedLaplacian, S_xx, X̃, X̃_regularized, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
-    save("data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
+    save("benchmark/data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
 end
 
 if ~isfile("data/medium_controls_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_controls_main.csv"; header=true)
     Xcontrols, S_xx, X̃, X̃_regularized , R_p, R_b, A_d, A_f = compute_X_Controls(data)
-    save("data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
+    save("benchmark/data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx, "X_tilde", X̃, "X_tilde_regularized", X̃_regularized, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
 end
 
 
