@@ -27,7 +27,7 @@ S_xx = medium_data["S_xx"]
 X̃_regularized = Symmetric([sparse(1.0I, m,m) X; X' sparse(-μ*I,k, k)])
 
 max_rhs = 200
-R_p = bitrand(max_rhs,m)
+R_p = convert(Array{Float64,2}, bitrand(max_rhs,m))
 rademacher!(R_p)
 
 const SUITE = BenchmarkGroup()
