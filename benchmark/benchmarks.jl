@@ -152,7 +152,7 @@ SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS: 200"] = @benchm
 
 ##Medium Data with controls
 
-medium_controls_data = load("data/medium_controls_main.jld")
+medium_controls_data = load("benchmark/data/medium_controls_main.jld")
 Xcontrols = medium_controls_data["Xcontrols"]
 X̃_controls = medium_controls_data["X_tilde"]
 S_xx_controls = medium_controls_data["S_xx"]
