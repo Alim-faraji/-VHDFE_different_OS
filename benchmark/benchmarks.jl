@@ -7,8 +7,15 @@ using LDLFactorizations
 
 pkg_dir = pkgdir(VarianceComponentsHDFE)
 
-use_matlabCMG = false
-if use_matlabCMG
+use_matlab_CMG = get(ENV, "USE_MATLAB_CMG", "false") == "true" ? true : false
+run_large_benchmark = get(ENV, "VCHDFE_LARGE_BENCHMARK", "false")  == "true" ? true : false
+num_rhs_large = try
+        parse(Int, get(ENV, "BENCHMARK_NUM_RHS_LARGE", "1"))
+    catch
+        1
+    end
+
+if use_matlab_CMG
     using Laplacians, Pkg
     include(string(Pkg.dir("Laplacians") , "/src/matlabSolvers.jl"))
 end
@@ -59,7 +66,7 @@ z = 0.1.*ones(length(RHS))
 
 # Iterative methods on the original system S_xx
 SUITE["S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $RHS, Pl = $P , log=true, maxiter=300)
-if use_matlabCMG
+if use_matlab_CMG
     SUITE["S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $RHS; tol=1e-6, maxits=300)
 end
 
@@ -111,7 +118,7 @@ z = 0.1.*ones(length(JLA_RHS))
 # Iterative methods on the original system S_xx
 SUITE["JLA: S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS, Pl = $P , log=true, maxiter=300)
 SUITE["JLA: S_xx iterative solve: AMG, sparse RHS"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS_sparse, Pl = $P , log=true, maxiter=300)
-if use_matlabCMG
+if use_matlab_CMG
     SUITE["JLA: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS; tol=1e-6, maxits=300)
     SUITE["JLA: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS_sparse; tol=1e-6, maxits=300)
 end
