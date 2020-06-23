@@ -7,6 +7,7 @@ using LDLFactorizations
 
 pkg_dir = pkgdir(VarianceComponentsHDFE)
 
+# Obtain environment variables
 use_matlab_CMG = get(ENV, "USE_MATLAB_CMG", "false") == "true" ? true : false
 run_large_benchmark = get(ENV, "VCHDFE_LARGE_BENCHMARK", "false")  == "true" ? true : false
 num_rhs_large = try

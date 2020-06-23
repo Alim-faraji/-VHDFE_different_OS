@@ -7,6 +7,9 @@ force_generate = false
 
 pkg_dir = pkgdir(VarianceComponentsHDFE)
 
+# Obtain environment variables
+run_large_benchmark = get(ENV, "VCHDFE_LARGE_BENCHMARK", "false")  == "true" ? true : false
+
 ## Medium-Sized Network Generator
 function rademacher!(R; demean = false)
     R .= R - (R .== 0)
@@ -130,10 +133,14 @@ if ~isfile(pkg_dir*"/benchmark/data/medium_controls_main.jld") || force_generate
     save(pkg_dir*"/benchmark/data/medium_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
 end
 
+if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/full_main.jld") || force_generate)
+    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=true)
+    X_Laplacian, X_GroundedLaplacian, S_xx = compute_X_No_Controls(data)
+    save(pkg_dir*"/benchmark/data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
+ end
 
-# TODO: This is throwing a Killed: 9 error
-# if ~isfile("data/full_main.jld") || force_generate
-#    data = CSV.read(datadep"VarianceComponentsHDFE/full_main.csv"; header=true)
-#    X_Laplacian, X_GroundedLaplacian, S_xx, X̃, R_p, R_b, A_d, A_f = compute_X_No_Controls(data)
-#    save("data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "X_tilde", X̃, "R_p", R_p, "R_b", R_b, "A_d", A_d, "A_f", A_f)
-# end
+ if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/full_controls_main.jld") || force_generate)
+     data = CSV.read(datadep"VarianceComponentsHDFE/full_controls_main.csv"; header=true)
+     Xcontrols, S_xx = compute_X_Controls(data)
+     save(pkg_dir*"/benchmark/data/full_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
+ end
