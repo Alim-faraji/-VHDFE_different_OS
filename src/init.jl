@@ -1,15 +1,15 @@
 function __init__()
     register(DataDep("VarianceComponentsHDFE",
-        "Downloading medium_main.csv, medium_controls_main.csv, full_main.csv, and full_controls_main.csv test data",
-        ["https://vchdfe.s3-us-west-2.amazonaws.com/medium_main.csv.tar.gz",
-        "https://vchdfe.s3-us-west-2.amazonaws.com/medium_controls_main.csv.tar.gz",
-        "https://vchdfe.s3-us-west-2.amazonaws.com/full_main.csv.tar.gz",
-        "https://vchdfe.s3-us-west-2.amazonaws.com/full_controls_main.csv.tar.gz"],
-        ["3dea578dd21c78e8cb148d19067638222a6c4be886a805272ae9d4a576f81042",
-        "ad308402a5a63e58eef1dd85316a42e96789391acde9d97897f33c08289681df",
-        "a0d64c1d6c945d36cb7bea8bd54ce3e19e04f39fec56274d42faf96018fd19db",
-        "82a95b368b2f6be381f10228026ebf2ffffc7e0d80bf5580ee905adf29b26128"];
-        post_fetch_method= [unpack, unpack, unpack, unpack]
-    ))
+           "Downloading medium_nocontrols_pruned.csv, medium_controls_pruned.csv, large_nocontrols_pruned.csv, and large_controls_pruned.csv",
+           ["https://vchdfe.s3-us-west-2.amazonaws.com/medium_pruned_main.tar.gz",
+           "https://vchdfe.s3-us-west-2.amazonaws.com/medium_controls_pruned_main.tar.gz",
+           "https://vchdfe.s3-us-west-2.amazonaws.com/large_pruned_main.tar.gz",
+           "https://vchdfe.s3-us-west-2.amazonaws.com/large_controls_pruned_main.tar.gz"],
+           ["e01474ebd8d7df6d645b0c865079a108c9fd33e052b7ab163bb2f5749bc58387",
+           "a896b114eb952e60212196ecd1dffe2ea8bded263590a5b93e3b30b069feb0e1",
+           "583ec55959b16ef93db210736c93daa8c8eab9097d4492347fe442237f6b3c2c",
+           "e6ca435c7ac3bf7a8e425ab58581f36877845c099ad4da086d1990a3c270ac88"];
+           post_fetch_method= [unpack, unpack, unpack, unpack]
+       ))
     return nothing
 end
