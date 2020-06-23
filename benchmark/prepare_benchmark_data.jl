@@ -79,7 +79,7 @@ function compute_X_Controls(data)
 end
 
 if ~isfile(pkg_dir*"/benchmark/data/medium_main.jld") || force_generate
-    data = CSV.read(datadep"VarianceComponentsHDFE/medium_nocontrols_pruned.csv"; header=false)
+    data = CSV.read(datadep"VarianceComponentsHDFE/medium_nocontrols_pruned.csv"; header=true)
     X_Laplacian, X_GroundedLaplacian, S_xx = compute_X_No_Controls(data)
     save(pkg_dir*"/benchmark/data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
 end
