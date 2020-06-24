@@ -11,9 +11,9 @@ pkg_dir = pkgdir(VarianceComponentsHDFE)
 use_matlab_CMG = get(ENV, "USE_MATLAB_CMG", "false") == "true" ? true : false
 run_large_benchmark = get(ENV, "VCHDFE_LARGE_BENCHMARK", "false")  == "true" ? true : false
 num_rhs_large = try
-        parse(Int, get(ENV, "BENCHMARK_NUM_RHS_LARGE", "1"))
+        parse(Int, get(ENV, "BENCHMARK_NUM_RHS_LARGE", "2"))
     catch
-        1
+        2
     end
 
 if use_matlab_CMG
