@@ -234,7 +234,7 @@ SUITE["X_tilde_reg_controls factorization: LDL"] = @benchmarkable ldl($X̃_regul
 
 if run_large_benchmark
 
-    large_data = load(pkg_dir*"/benchmark/data/medium_main.jld")
+    large_data = load(pkg_dir*"/benchmark/data/large_main.jld")
     X = large_data["X_GroundedLaplacian"]
     m,k = size(X)
     X̃ = Symmetric([sparse(1.0I, m,m ) X; spzeros(k, k+m)])
