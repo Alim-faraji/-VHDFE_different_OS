@@ -70,7 +70,8 @@ z = 0.1.*ones(length(RHS))
 # Iterative methods on the original system S_xx
 SUITE["S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $RHS, Pl = $P , log=true, maxiter=300)
 if use_matlab_CMG
-    SUITE["S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $RHS; tol=1e-6, maxits=300)
+    sparseS_xx = sparse(S_xx)
+    SUITE["S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($sparseS_xx, $RHS; tol=1e-6, maxits=300)
 end
 
 # Computation of the preconditioner
@@ -122,8 +123,9 @@ z = 0.1.*ones(length(JLA_RHS))
 SUITE["JLA: S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS, Pl = $P , log=true, maxiter=300)
 SUITE["JLA: S_xx iterative solve: AMG, sparse RHS"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS_sparse, Pl = $P , log=true, maxiter=300)
 if use_matlab_CMG
-    SUITE["JLA: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS; tol=1e-6, maxits=300)
-    SUITE["JLA: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS_sparse; tol=1e-6, maxits=300)
+    sparseS_xx = sparse(S_xx)
+    SUITE["JLA: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($sparseS_xx, $JLA_RHS; tol=1e-6, maxits=300)
+    SUITE["JLA: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($sparseS_xx, $JLA_RHS_sparse; tol=1e-6, maxits=300)
 end
 
 # Direct methods on the regularized augmented X̃_regularized
@@ -232,7 +234,7 @@ SUITE["X_tilde_reg_controls factorization: LDL"] = @benchmarkable ldl($X̃_regul
 
 if run_large_benchmark
 
-    large_data = load(pkg_dir*"/benchmark/data/large_main.jld")
+    large_data = load(pkg_dir*"/benchmark/data/medium_main.jld")
     X = large_data["X_GroundedLaplacian"]
     m,k = size(X)
     X̃ = Symmetric([sparse(1.0I, m,m ) X; spzeros(k, k+m)])
@@ -257,7 +259,8 @@ if run_large_benchmark
     # Iterative methods on the original system S_xx
     SUITE["Large: S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $RHS, Pl = $P , log=true, maxiter=300)
     if use_matlab_CMG
-        SUITE["Large: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $RHS; tol=1e-6, maxits=300)
+        sparseS_xx = sparse(S_xx)
+        SUITE["Large: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($sparseS_xx, $RHS; tol=1e-6, maxits=300)
     end
 
     # Computation of the preconditioner
@@ -292,8 +295,9 @@ if run_large_benchmark
     z = 0.1.*ones(length(JLA_RHS))
     SUITE["Large: JLA: S_xx iterative solve: AMG, sparse RHS"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS_sparse, Pl = $P , log=true, maxiter=300)
     if use_matlab_CMG
-        SUITE["Large: JLA: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS; tol=1e-6, maxits=300)
-        SUITE["Large: JLA: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS_sparse; tol=1e-6, maxits=300)
+        sparseS_xx = sparse(S_xx)
+        SUITE["Large: JLA: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($sparseS_xx, $JLA_RHS; tol=1e-6, maxits=300)
+        SUITE["Large: JLA: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($sparseS_xx, $JLA_RHS_sparse; tol=1e-6, maxits=300)
     end
 
     # Direct methods on the regularized augmented X̃_regularized
