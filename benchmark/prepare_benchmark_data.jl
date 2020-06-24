@@ -93,11 +93,11 @@ end
 if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/large_main.jld") || force_generate)
     data = CSV.read(datadep"VarianceComponentsHDFE/large_nocontrols_pruned.csv"; header=true)
     X_Laplacian, X_GroundedLaplacian, S_xx = compute_X_No_Controls(data)
-    save(pkg_dir*"/benchmark/data/full_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
+    save(pkg_dir*"/benchmark/data/large_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
  end
 
  if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/large_controls_main.jld") || force_generate)
      data = CSV.read(datadep"VarianceComponentsHDFE/large_controls_pruned.csv"; header=true)
      Xcontrols, S_xx = compute_X_Controls(data)
-     save(pkg_dir*"/benchmark/data/full_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
+     save(pkg_dir*"/benchmark/data/large_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
  end

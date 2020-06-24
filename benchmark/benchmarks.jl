@@ -25,6 +25,8 @@ end
 include("prepare_benchmark_data.jl")
 # NOTE: Suite below can assume that the `benchmark/data/...` has been filled
 
+Random.seed!(1234)
+
 μ = sqrt(eps())
 medium_data = load(pkg_dir*"/benchmark/data/medium_main.jld")
 X = medium_data["X_GroundedLaplacian"]
@@ -227,3 +229,85 @@ SUITE["X_tilde_reg_controls factorization: LDLT"] = @benchmarkable ldlt($X̃_reg
 SUITE["X_tilde_reg_controls factorization: LU"] = @benchmarkable lu($X̃_regularized_controls)
 # SUITE["X_tilde_reg_controls factorization: QR"] = @benchmarkable qr($X̃_regularized_controls)
 SUITE["X_tilde_reg_controls factorization: LDL"] = @benchmarkable ldl($X̃_regularized_controls)
+
+if run_large_benchmark
+
+    large_data = load(pkg_dir*"/benchmark/data/large_main.jld")
+    X = large_data["X_GroundedLaplacian"]
+    m,k = size(X)
+    X̃ = Symmetric([sparse(1.0I, m,m ) X; spzeros(k, k+m)])
+
+    S_xx = large_data["S_xx"]
+    X̃_regularized = Symmetric([sparse(1.0I, m,m) X; spzeros(k,m) sparse(-μ*I,k, k)])
+
+    R_p = convert(Array{Float64,2}, bitrand(num_rhs_large,m))
+    rademacher!(R_p)
+
+    # Prepare for direct method benchmarks
+    Rz = zeros(m+k)
+    # RHS_aug is the first column of the mxm identity augmented by k zeros
+    RHS_aug = zeros(m+k)
+    RHS_aug[1] = 1.0
+
+    # Prepare for iterative method benchmarks
+    P = aspreconditioner(ruge_stuben(S_xx))
+    RHS = SparseMatrixCSC{Float64,Int64}(X[1,:])
+    z = 0.1.*ones(length(RHS))
+
+    # Iterative methods on the original system S_xx
+    SUITE["Large: S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $RHS, Pl = $P , log=true, maxiter=300)
+    if use_matlab_CMG
+        SUITE["Large: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $RHS; tol=1e-6, maxits=300)
+    end
+
+    # Computation of the preconditioner
+    SUITE["Large: S_xx precondition: AMG ruge_stuben"] = @benchmarkable aspreconditioner(ruge_stuben($S_xx))
+
+    # Prepapre for direct method (augmented system) benchmarks
+    ldltX̃_reg = ldlt(X̃_regularized)
+    ldlX̃_reg = ldl(X̃_regularized)
+
+    # Direct methods on the regularized augmented X̃_regularized
+    SUITE["Large: X_tilde_reg direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $RHS_aug)
+    # SUITE["Large: X_tilde_reg direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $RHS_aug)
+
+    SUITE["Large: X_tilde_reg inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $RHS_aug)
+
+    # Non-inplace factorizations of the regularized augmented system X̃
+    SUITE["Large: X_tilde_reg factorization: LDLT"] = @benchmarkable ldlt($X̃_regularized)
+    SUITE["Large: X_tilde_reg factorization: LDL"] = @benchmarkable ldl($X̃_regularized)
+
+    ## JLA problem with a single RHS
+    # JLA_RHS_aug is the first column of the mxm identity augmented by k zeros
+    JLA_RHS_aug = zeros(m+k)
+    JLA_RHS_aug[1:m] = R_p[1,:]
+
+    # JLA_RHS is not too sparse, so we benchmark both the sparse and non-sparse representation
+    JLA_RHS = (R_p*X)[1,:]
+    JLA_RHS_sparse =  SparseMatrixCSC{Float64,Int64}(sparse(JLA_RHS))
+    z = 0.1.*ones(length(JLA_RHS))
+
+    # Iterative methods on the original system S_xx
+    SUITE["Large: JLA: S_xx iterative solve: AMG"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS, Pl = $P , log=true, maxiter=300)
+    z = 0.1.*ones(length(JLA_RHS))
+    SUITE["Large: JLA: S_xx iterative solve: AMG, sparse RHS"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS_sparse, Pl = $P , log=true, maxiter=300)
+    if use_matlab_CMG
+        SUITE["Large: JLA: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS; tol=1e-6, maxits=300)
+        SUITE["Large: JLA: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($S_xx, $JLA_RHS_sparse; tol=1e-6, maxits=300)
+    end
+
+    # Direct methods on the regularized augmented X̃_regularized
+    SUITE["Large: JLA: X_tilde_reg direct solve: LDLT"] = @benchmarkable \($ldltX̃_reg, $JLA_RHS_aug)
+    # SUITE["Large: JLA: X_tilde_reg direct solve: LDL"] = @benchmarkable \($ldlX̃_reg, $JLA_RHS_aug)
+
+    SUITE["Large: JLA: X_tilde_reg inplace direct solve: LDL"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug)
+
+    ## LDL Factorization (regularized augmented system) with multiple right hand sides
+    JLA_RHS_aug_m = zeros(m+k,num_rhs_large)
+    JLA_RHS_aug_m[1:m,1:num_rhs_large] = R_p[1:num_rhs_large,:]'
+    Rz = zeros(size(JLA_RHS_aug_m))
+    SUITE["JLA: X_tilde_reg inplace direct solve: LDL, multiple RHS"] = @benchmarkable ldiv!($Rz, $ldlX̃_reg, $JLA_RHS_aug_m)
+
+    # TODO Add back the controls later
+
+end
