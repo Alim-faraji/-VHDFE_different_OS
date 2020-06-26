@@ -45,7 +45,7 @@ sol_sddm = approxchol_sddm(S_xx_sparse, verbose=true)
 SUITE["Large: SDDM Solver Build for S_xx_sparse"] = @benchmarkable approxchol_sddm($S_xx_sparse, verbose=true)
 
 sol_KMPsddm = KMPSDDMSolver(S_xx_sparse, maxits=300; verbose=true)
-SUITE["Large: KMPSDDM Solver Build for S_xx_sparse"] = KMPSDDMSolver($S_xx_sparse, maxits=300; verbose=true)
+SUITE["Large: KMPSDDM Solver Build for S_xx_sparse"] = @benchmarkable KMPSDDMSolver($S_xx_sparse, maxits=300; verbose=true)
 
 #Create Adjacency and LAP solver
 A = copy(S_xx_sparse)
