@@ -74,13 +74,13 @@ JLA_RHS_lap = (R_p*X_lap)[1,:]
 JLA_RHS_lap_sparse = SparseMatrixCSC{Float64,Int64}(sparse(JLA_RHS_lap))
 
 #SDDM Solvers
-SUITE["Large: S_xx_sparse SDDM solver JL RHS"] = @benchmarkable sol_sddm($JLA_RHS, verbose=true)
-SUITE["Large: S_xx_sparse KMPSDDM solver JL RHS"] = @benchmarkable sol_KMPsddm($JLA_RHS, verbose=true)
+SUITE["Large: S_xx_sparse SDDM solver JL RHS"] = @benchmarkable sol_sddm($JLA_RHS, verbose=false)
+SUITE["Large: S_xx_sparse KMPSDDM solver JL RHS"] = @benchmarkable sol_KMPsddm($JLA_RHS, verbose=false)
 
 #LAP Solvers
-SUITE["Large: S_xx_sparse LAP solver JL RHS"] = @benchmarkable sol_lap($JLA_RHS_lap, verbose=true)
-SUITE["Large: S_xx_sparse cgLAP solver JL RHS"] = @benchmarkable sol_cglap($JLA_RHS_lap, verbose=true)
-SUITE["Large: S_xx_sparse KMPLap solver JL RHS"] = @benchmarkable sol_KMPlap($JLA_RHS_lap, verbose=true)
+SUITE["Large: S_xx_sparse LAP solver JL RHS"] = @benchmarkable sol_lap($JLA_RHS_lap, verbose=false)
+SUITE["Large: S_xx_sparse cgLAP solver JL RHS"] = @benchmarkable sol_cglap($JLA_RHS_lap, verbose=false)
+SUITE["Large: S_xx_sparse KMPLap solver JL RHS"] = @benchmarkable sol_KMPlap($JLA_RHS_lap, verbose=false)
 
 # Setup and benchmark the precondiioner
 SUITE["Large: S_xx precondition: AMG ruge_stuben"] = @benchmarkable aspreconditioner(ruge_stuben($S_xx))
