@@ -43,9 +43,9 @@ function compute_X_No_Controls(data)
     X_Laplacian = hcat(D, -F)
     X_GroundedLaplacian = hcat(D, -F*S)
     S_xx = Symmetric(X_GroundedLaplacian'*X_GroundedLaplacian)
-    S_xx_lap = Symmetric(X_Laplacian'*X_Laplacian)
+    S_xx_lap = Symmetric(SparseMatrixCSC{Float64,Int64}(X_Laplacian'*X_Laplacian))
 
-    A, diag = adj(X_Laplacian'*X_Laplacian)
+    A, diag = adj(SparseMatrixCSC{Float64,Int64}(X_Laplacian'*X_Laplacian))
 
     return X_Laplacian, X_GroundedLaplacian, S_xx, S_xx_lap, A
 end
