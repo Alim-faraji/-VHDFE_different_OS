@@ -5,7 +5,7 @@ using AlgebraicMultigrid, IterativeSolvers
 using Laplacians
 
 #if (BLAS.vendor() == :openblas64 && !haskey(ENV, "OPENBLAS_NUM_THREADS"))
-#    blas_num_threads = min(4, Int64(round(Sys.CPU_THREADS / 2)))  # or lower?
+#    blas_num_threads = min(1, Int64(round(Sys.CPU_THREADS / 2)))  # or lower?
 #    println("Setting BLAS threads = $blas_num_threads")
 #    BLAS.set_num_threads(blas_num_threads)
 #end
@@ -48,20 +48,20 @@ k_lap = size(X_lap,2)
 #SDDM solver
 sol_sddm = approxchol_sddm(S_xx_sparse, verbose=true)
 
-SUITE["Large: SDDM Solver Build for S_xx_sparse"] = @benchmarkable approxchol_sddm($S_xx_sparse, verbose=true)
+SUITE["Large: SDDM Solver Build for S_xx_sparse"] = @benchmarkable approxchol_sddm($S_xx_sparse, verbose=false)
 
 sol_KMPsddm = KMPSDDMSolver(S_xx_sparse, maxits=300; verbose=true)
-SUITE["Large: KMPSDDM Solver Build for S_xx_sparse"] = @benchmarkable KMPSDDMSolver($S_xx_sparse, maxits=300; verbose=true)
+SUITE["Large: KMPSDDM Solver Build for S_xx_sparse"] = @benchmarkable KMPSDDMSolver($S_xx_sparse, maxits=300; verbose=false)
 
 #Create Adjacency and LAP solver
 sol_lap = approxchol_lap(A; verbose=true)
-SUITE["Large: Lap Solver Build for Adjacency Matrix"] = @benchmarkable approxchol_lap($A; verbose=true)
+SUITE["Large: Lap Solver Build for Adjacency Matrix"] = @benchmarkable approxchol_lap($A; verbose=false)
 
 sol_cglap = Laplacians.cgLapSolver(A,maxits=300;verbose=true)
-SUITE["Large: cgLap Solver Build for Adjacency Matrix"] = @benchmarkable  Laplacians.cgLapSolver($A,maxits=300;verbose=true)
+SUITE["Large: cgLap Solver Build for Adjacency Matrix"] = @benchmarkable  Laplacians.cgLapSolver($A,maxits=300;verbose=false)
 
 sol_KMPlap = KMPLapSolver(A,maxits=300;verbose=true)
-SUITE["Large: KMPLap Solver Build for Adjacency Matrix"] = @benchmarkable  KMPLapSolver($A,maxits=300;verbose=true)
+SUITE["Large: KMPLap Solver Build for Adjacency Matrix"] = @benchmarkable  KMPLapSolver($A,maxits=300;verbose=false)
 
 # Only a single RHS, so set p = 1
 R_p = convert(Array{Float64,2}, bitrand(1,m))
@@ -115,4 +115,3 @@ if use_matlab_CMG
     SUITE["Large: S_xx iterative solve: CMG"] = @benchmarkable matlabCmgSolver($S_xx_sparse, $JLA_RHS; tol=1e-6, maxits=300)
     SUITE["Large: S_xx iterative solve: CMG, sparse RHS"] = @benchmarkable matlabCmgSolver($S_xx_sparse, $JLA_RHS_sparse; tol=1e-6, maxits=300)
 end
-
