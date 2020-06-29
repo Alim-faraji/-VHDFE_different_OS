@@ -43,8 +43,11 @@ function compute_X_No_Controls(data)
     X_Laplacian = hcat(D, -F)
     X_GroundedLaplacian = hcat(D, -F*S)
     S_xx = Symmetric(X_GroundedLaplacian'*X_GroundedLaplacian)
+    S_xx_lap = Symmetric(X_Laplacian'*X_Laplacian)
 
-    return X_Laplacian, X_GroundedLaplacian, S_xx
+    A, diag = adj(X_Laplacian'*X_Laplacian)
+
+    return X_Laplacian, X_GroundedLaplacian, S_xx, S_xx_lap, A
 end
 
 function compute_X_Controls(data)
@@ -80,8 +83,8 @@ end
 
 if ~isfile(pkg_dir*"/benchmark/data/medium_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_nocontrols_pruned.csv"; header=true)
-    X_Laplacian, X_GroundedLaplacian, S_xx = compute_X_No_Controls(data)
-    save(pkg_dir*"/benchmark/data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
+    X_Laplacian, X_GroundedLaplacian, S_xx , S_xx_lap, A = compute_X_No_Controls(data)
+    save(pkg_dir*"/benchmark/data/medium_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "S_xx_lap", S_xx_lap, "A", A)
 end
 
 if ~isfile(pkg_dir*"/benchmark/data/medium_controls_main.jld") || force_generate
@@ -92,8 +95,8 @@ end
 
 if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/large_main.jld") || force_generate)
     data = CSV.read(datadep"VarianceComponentsHDFE/large_nocontrols_pruned.csv"; header=true)
-    X_Laplacian, X_GroundedLaplacian, S_xx = compute_X_No_Controls(data)
-    save(pkg_dir*"/benchmark/data/large_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx)
+    X_Laplacian, X_GroundedLaplacian, S_xx , S_xx_lap, A = compute_X_No_Controls(data)
+    save(pkg_dir*"/benchmark/data/large_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "S_xx_lap", S_xx_lap, "A", A)
  end
 
  if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/large_controls_main.jld") || force_generate)

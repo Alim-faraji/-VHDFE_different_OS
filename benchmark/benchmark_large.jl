@@ -34,10 +34,16 @@ const SUITE = BenchmarkGroup()
 include("prepare_benchmark_data.jl")
 large_data = load(pkg_dir*"/benchmark/data/large_main.jld")
 X = large_data["X_GroundedLaplacian"]
+X_lap = large_data["X_Laplacian"]
+
 S_xx = large_data["S_xx"]
 S_xx_sparse = sparse(S_xx) # The CMG solver can't handle a symmetric S_xx
-m,k = size(X)
 
+S_xx_lap = large_data["S_xx_lap"]
+S_xx_sparse_lap = sparse(S_xx_lap)
+A = large_data["A"]
+m,k = size(X)
+k_lap = size(X_lap,2)
 
 #SDDM solver
 sol_sddm = approxchol_sddm(S_xx_sparse, verbose=true)
@@ -48,9 +54,6 @@ sol_KMPsddm = KMPSDDMSolver(S_xx_sparse, maxits=300; verbose=true)
 SUITE["Large: KMPSDDM Solver Build for S_xx_sparse"] = @benchmarkable KMPSDDMSolver($S_xx_sparse, maxits=300; verbose=true)
 
 #Create Adjacency and LAP solver
-A = copy(S_xx_sparse)
-A[diagind(A)] = spzeros(size(A,1))
-A = -1*A
 sol_lap = approxchol_lap(A; verbose=true)
 SUITE["Large: Lap Solver Build for Adjacency Matrix"] = @benchmarkable approxchol_lap($A; verbose=true)
 
@@ -68,12 +71,17 @@ rademacher!(R_p)
 JLA_RHS = (R_p*X)[1,:]
 JLA_RHS_sparse =  SparseMatrixCSC{Float64,Int64}(sparse(JLA_RHS))
 
-#Laplacians Solvers benchmark
+JLA_RHS_lap = (R_p*X_lap)[1,:]
+JLA_RHS_lap_sparse = SparseMatrixCSC{Float64,Int64}(sparse(JLA_RHS_lap))
+
+#SDDM Solvers
 SUITE["Large: S_xx_sparse SDDM solver JL RHS"] = @benchmarkable sol_sddm($JLA_RHS, verbose=true)
-SUITE["Large: S_xx_sparse LAP solver JL RHS"] = @benchmarkable sol_lap($JLA_RHS, verbose=true)
-SUITE["Large: S_xx_sparse cgLAP solver JL RHS"] = @benchmarkable sol_cglap($JLA_RHS, verbose=true)
 SUITE["Large: S_xx_sparse KMPSDDM solver JL RHS"] = @benchmarkable sol_KMPsddm($JLA_RHS, verbose=true)
-SUITE["Large: S_xx_sparse KMPLap solver JL RHS"] = @benchmarkable sol_KMPlap($JLA_RHS, verbose=true)
+
+#LAP Solvers
+SUITE["Large: S_xx_sparse LAP solver JL RHS"] = @benchmarkable sol_lap($JLA_RHS_lap, verbose=true)
+SUITE["Large: S_xx_sparse cgLAP solver JL RHS"] = @benchmarkable sol_cglap($JLA_RHS_lap, verbose=true)
+SUITE["Large: S_xx_sparse KMPLap solver JL RHS"] = @benchmarkable sol_KMPlap($JLA_RHS_lap, verbose=true)
 
 # Setup and benchmark the precondiioner
 SUITE["Large: S_xx precondition: AMG ruge_stuben"] = @benchmarkable aspreconditioner(ruge_stuben($S_xx))
@@ -92,8 +100,6 @@ z = 0.1.*ones(length(JLA_RHS))
 SUITE["Large: S_xx iterative solve RHS_sparse: AMG/CG"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS_sparse, Pl = $P , log=true, maxiter=300)
 z = 0.1.*ones(length(JLA_RHS))
 SUITE["Large: S_xx_sparse iterative solve RHS_sparse: AMG/CG"] = @benchmarkable cg!($z, $S_xx_sparse, $JLA_RHS_sparse, Pl = $P , log=true, maxiter=300)
-
-
 
 z = 0.1.*ones(length(JLA_RHS))
 SUITE["Large: S_xx iterative solve: AMG/CG, P_sparse"] = @benchmarkable cg!($z, $S_xx, $JLA_RHS, Pl = $P_sparse, log=true, maxiter=300)
