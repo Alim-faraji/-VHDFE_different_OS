@@ -47,7 +47,6 @@ k_lap = size(X_lap,2)
 
 #SDDM solver
 sol_sddm = approxchol_sddm(S_xx_sparse, verbose=true)
-
 SUITE["Large: SDDM Solver Build for S_xx_sparse"] = @benchmarkable approxchol_sddm($S_xx_sparse, verbose=false)
 
 sol_KMPsddm = KMPSDDMSolver(S_xx_sparse, maxits=300; verbose=true)
