@@ -9,6 +9,7 @@ pkg_dir = pkgdir(VarianceComponentsHDFE)
 
 # Obtain environment variables
 run_large_benchmark = get(ENV, "VCHDFE_LARGE_BENCHMARK", "false")  == "true" ? true : false
+run_huge_benchmark = get(ENV, "VCHDFE_HUGE_BENCHMARK", "false")  == "true" ? true : false
 
 ## Medium-Sized Network Generator
 function rademacher!(R; demean = false)
@@ -103,4 +104,10 @@ if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/large_main.jld") || 
      data = CSV.read(datadep"VarianceComponentsHDFE/large_controls_pruned.csv"; header=true)
      Xcontrols, S_xx = compute_X_Controls(data)
      save(pkg_dir*"/benchmark/data/large_controls_main.jld", "Xcontrols", Xcontrols, "S_xx", S_xx)
+ end
+
+ if run_huge_benchmark && (~isfile(pkg_dir*"/benchmark/data/huge_main.jld") || force_generate)
+     data = CSV.read(datadep"VarianceComponentsHDFE/huge_pruned_main.csv"; header=true)
+     Xcontrols, S_xx = compute_X_Controls(data)
+     save(pkg_dir*"/benchmark/data/huge_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "S_xx_lap", S_xx_lap, "A", A)
  end
