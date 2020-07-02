@@ -108,6 +108,6 @@ if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/large_main.jld") || 
 
  if run_huge_benchmark && (~isfile(pkg_dir*"/benchmark/data/huge_main.jld") || force_generate)
      data = CSV.read(datadep"VarianceComponentsHDFE/huge_pruned_main.csv"; header=true)
-     X_Laplacian, X_GroundedLaplacian, S_xx , S_xx_lap, A = compute_X_Controls(data)
+     X_Laplacian, X_GroundedLaplacian, S_xx , S_xx_lap, A = compute_X_No_Controls(data)
      save(pkg_dir*"/benchmark/data/huge_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "S_xx_lap", S_xx_lap, "A", A)
  end
