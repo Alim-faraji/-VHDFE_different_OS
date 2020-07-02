@@ -82,6 +82,37 @@ function compute_X_Controls(data)
     return Xcontrols, S_xx
 end
 
+# We don't use the symmetric flag here, it is making the cluster kill the process
+# Also flagged X_laplacian as a sparse matrix of Floats
+function compute_X_No_Controls_Huge(data)
+    id = data.id
+    firmid = data.firmid
+    y = data.y
+
+    NT = size(y,1);
+    J = maximum(firmid);
+    N = maximum(id);
+    K = 0
+    nparameters = N + J + K
+
+    #Worker Dummies
+    D = sparse(collect(1:NT),id,1);
+
+    #Firm Dummies
+    F = sparse(collect(1:NT),firmid,1);
+
+    # N+J x N+J-1 restriction matrix
+    S= sparse(1.0I, J-1, J-1);
+    S=vcat(S,sparse(-zeros(1,J-1)));
+    X_Laplacian = SparseMatrixCSC{Float64,Int64}(hcat(D, -F))
+    X_GroundedLaplacian = hcat(D, -F*S)
+    S_xx = X_GroundedLaplacian'*X_GroundedLaplacian
+    S_xx_lap = X_Laplacian'*X_Laplacian
+    A, diag = adj(S_xx_lap)
+
+    return X_Laplacian, X_GroundedLaplacian, S_xx, S_xx_lap, A
+end
+
 if ~isfile(pkg_dir*"/benchmark/data/medium_main.jld") || force_generate
     data = CSV.read(datadep"VarianceComponentsHDFE/medium_nocontrols_pruned.csv"; header=true)
     X_Laplacian, X_GroundedLaplacian, S_xx , S_xx_lap, A = compute_X_No_Controls(data)
@@ -108,6 +139,6 @@ if run_large_benchmark && (~isfile(pkg_dir*"/benchmark/data/large_main.jld") || 
 
  if run_huge_benchmark && (~isfile(pkg_dir*"/benchmark/data/huge_main.jld") || force_generate)
      data = CSV.read(datadep"VarianceComponentsHDFE/huge_pruned_main.csv"; header=true)
-     X_Laplacian, X_GroundedLaplacian, S_xx , S_xx_lap, A = compute_X_No_Controls(data)
+     X_Laplacian, X_GroundedLaplacian, S_xx , S_xx_lap, A = compute_X_No_Controls_Huge(data)
      save(pkg_dir*"/benchmark/data/huge_main.jld", "X_Laplacian", X_Laplacian, "X_GroundedLaplacian", X_GroundedLaplacian, "S_xx", S_xx, "S_xx_lap", S_xx_lap, "A", A)
  end
