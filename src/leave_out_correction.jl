@@ -892,3 +892,203 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
     end
 
 end
+
+function check_clustering(clustering_var)
+    NT = length(clustering_var)
+    counter = ones(size(clustering_var,1));
+    
+    #Indexing obs number per worked/id
+    gcs = Int.(@transform(groupby(DataFrame(counter = counter, clustering_var = clustering_var), :clustering_var), gcs = cumsum(:counter)).gcs)
+    maxD = maximum(gcs)
+
+    index = collect(1:NT)
+    
+    #This will be the output, and we will append observations to it in the loop
+    list_final=DataFrame(row = Int64[],col = Int64[], id_cluster = Int64[])
+
+    for t=1:maxD
+        rowsel =  findall(x->x==true,gcs.==t)
+        list_base = DataFrame( id_cluster= [clustering_var[x] for x in rowsel], row = 
+        [index[x] for x in rowsel]  )
+    
+            for tt=t:maxD
+                colsel =  findall(x->x==true,gcs.==tt)
+                list_sel =  DataFrame( id_cluster= [clustering_var[x] for x in colsel], col = 
+                [index[x] for x in colsel] )
+    
+                merge = outerjoin(list_base, list_sel, on = :id_cluster)
+                merge = dropmissing(merge)
+                merge = merge[:,[:row, :col, :id_cluster]]
+    
+                append!(list_final, merge)
+    
+            end
+        end
+    
+        sort!(list_final, (:row));
+    
+        return (list_final = Matrix(list_final) , nnz_2 = size(list_final,1) )  
+
+end
+
+function do_Pii(X, clustering_var)
+    n=size(X,1)
+
+    #If no clustering, Lambda_P is just diagonal matrix.
+    if clustering_var == nothing
+        clustering_var = collect(1:n)
+    end
+
+    #Set matrices for parallel environment. 
+    xx=X'*X
+    P = aspreconditioner(ruge_stuben(xx))
+
+    #Return the structure of the indexes associated with the clustering variable
+    elist = check_clustering(clustering_var);
+    M=size(elist,1)
+
+    #Set elist 
+    elist_1 = elist[:,1]
+    elist_2 = elist[:,2]
+    Pii=zeros(M,1)
+
+    Threads.@threads for i=1:M
+        zexact = zeros(size(X,2))
+        col = elist_2[i]
+        row = elist_1[i]
+        cg!(zexact, xx, X[col,:], Pl = P , log=true, maxiter=300))
+
+        Pii[i]=X[row,:]*zexact
+    end        
+
+    Lambda_P = sparse(elist[:,1],elist[:,2],Pii,n,n)
+
+    return Lambda_P
+end
+
+
+
+function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, restrict=nothing, nsim = 10000)
+    #SET DIMENSIONS
+    n=size(X,1)
+    K=size(X,2)
+    #Add Constant
+    Z=hcat(ones(size(Z,1)), Z)  
+
+    # PART 1: ESTIMATE HIGH DIMENSIONAL MODEL
+    xx=X'*X
+    xy=X'*y
+    P = aspreconditioner(ruge_stuben(xx))
+    beta = zeros(length(y))
+    cg!(beta,xx , SparseMatrixCSC{Float64,Int64}(y), Pl = P  , log=true, maxiter=300)
+    eta=y-X*beta
+    
+    # PART 1B: VERIFY LEAVE OUT COMPUTATION
+    if Lambda_P == nothing 
+        Lambda_P=do_Pii(X,clustering_var)
+    end
+
+    if Lambda_P != nothing && clusering_var !=nothing
+        nnz_1=nnz(Lambda_P)
+        nnz_2=check_clustering(clustering_var).nnz_2
+
+        if nnz_1 == nnz_2
+            println("The structure of the specified Lambda_P is consistent with the level of clustering required by the user.")
+        elseif nnz_1 != nnz_2
+            error("The user wants cluster robust inference but the Lambda_P provided by the user is not consistent with the level of clustering asked by the user. Try to omit input Lambda_P when running lincom_KSS")
+        end
+    end
+    I_Lambda_P = I-Lambda_P
+    eta_h = I_Lambda_P\eta
+
+    #PART 2: SET UP MATRIX FOR SANDWICH FORMULA
+    rows,columns, V = findnz(Lambda_P) 
+
+    aux= 0.5*(y[rows].*eta_h[columns] + y[columns].*eta_h[rows]) 
+    sigma_i=sparse(rows,columns,aux,n,n)
+
+    aux= 0.5*(eta[rows].*eta[columns] + eta[columns].*eta[rows]) 
+    sigma_i_res=sparse(rows,columns,aux,n,n)
+
+    r=size(Z,2);
+    wy=Transform*beta
+    zz=Z'*Z
+
+    numerator=Z\wy
+    chet=wy-Z*numerator
+    aux= 0.5*(chet[rows].*chet[columns] + chet[columns].*chet[rows]) 
+    sigma_i_chet=sparse(rows,columns,aux,n,n)
+
+    #PART 3: COMPUTE
+    denominator=zeros(r,1)
+    denominator_RES=zeros(r,1)
+
+    for q=1:r
+        v=sparse(q,1,1,r,1)
+        v=zz\v
+        v=Z*v
+        v=Transform'*v
+
+        right = zeros(length(v))
+        cg!(right,xx , SparseMatrixCSC{Float64,Int64}(v), Pl = P  , log=true, maxiter=300)
+
+        left=right' 
+
+        denominator[q]=left*(X'*sigma_i*X)*right
+        denominator_RES[q]=left*(X'*sigma_i_res*X)*right
+    end   
+
+    test_statistic=numerator./(sqrt(denominator))
+    #zz_inv=zz^(-1)
+    SE_linear_combination_NAI=zz\(Z'*sigma_i_chet*Z)/zz
+
+
+    #PART 4: REPORT
+    println("Inference on Linear Combinations:")
+    if labels != nothing 
+        for q=2:r
+            if q <= r    
+                println("Linear Combination - Column Number ", q-1," of Z: ", numerator[q] )
+                println("Standard Error of the Linear Combination - Column Number ", q-1," of Z: ", sqrt(denominator[q]) )
+                println("T-statistic - Column Number ", q-1, " of Z: ", test_statistic[q])
+            end
+        end
+    else
+        tell_me = labels[q-1]
+        println("Linear Combination associated with ", tell_me,": ", numerator[q] )
+        println("Standard Error  associated with ", tell_me,": ", sqrt(denominator[q]) )
+        println("T-statistic  associated with ", tell_me,": ", test_statistic[q])
+    end
+
+
+    # PART 5: Joint-test. Quadratic form beta'*A*beta
+    if restrict  == nothing 
+        restrict=sparse(collect(1:r-1),collect(2:r),1,r-1,r)
+    end
+
+    v=restrict*(zz\(Z'*Transform))
+    v=v'
+    v=sparse(v)
+    r=size(v,2)
+    
+    #Auxiliary
+    aux=xx\v
+    opt_weight=v'*aux
+    opt_weight=opt_weight^(-1)
+    opt_weight=(1/r)*(opt_weight+opt_weight')/2
+
+    #Eigenvalues, eigenvectors, and relevant components
+    FunAtimesX(x) = v*opt_weight*(v'*x)
+    opts.issym = 1
+    opts.tol = 1e-10
+    [V, lambda]=eigs(FunAtimesX,K,xx,r,'largestabs',opts)
+    lambda=diag(lambda)
+    W=X*V
+    V_b=W'*sigma_i*W
+
+
+end
+
+
+
+end
