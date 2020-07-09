@@ -1078,14 +1078,41 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
     opt_weight=(1/r)*(opt_weight+opt_weight')/2
 
     #Eigenvalues, eigenvectors, and relevant components
-    FunAtimesX(x) = v*opt_weight*(v'*x)
-    opts.issym = 1
-    opts.tol = 1e-10
-    [V, lambda]=eigs(FunAtimesX,K,xx,r,'largestabs',opts)
+    lambda , Qtilde = eigen( v*opt_weight*v' ,  xx)
     lambda=diag(lambda)
-    W=X*V
+    W=X*Qtilde
     V_b=W'*sigma_i*W
 
+    #Now focus on obtaining matrix Lambda_B with the A test associated with a joint hypothesis testing.
+    Bii=opt_weight^(0.5)*aux'; 
+    Bii=Bii*X'
+    Bii=Bii'
+    Bii = 0.5*(Bii[rows,:].*Bii[columns,:] + Bii[columns,:].*Bii[rows,:]) 
+    Bii = sum(Bii,dims=2)
+    Lambda_B=sparse(rows,columns,Bii,n,n)
+
+    #Leave Out Joint-Statistic
+    stat=(v'*beta)'*opt_weight*(v'*beta)-y'*Lambda_B*eta_h
+
+    #Now simulate critical values under the null.
+    mu=zeros(r,1)    
+    sigma = V_b
+    b_sim = MvNormal(mu,sigma)
+    b_sim = rand(b_sim, nsim)
+
+    theta_star_sim=sum(lambda'.*(b_sim.^2 - diag(V_b)'),2)
+    pvalue=mean(theta_star_sim.>stat)
+
+    #Report
+    println("Joint-Test Statistic: ", stat)
+    println("p-value: ", pvalue)
+
+    test_statistic=test_statistic[2:end]
+    linear_combination=numerator[2:end]
+    SE_linear_combination_KSS=sqrt.(denominator[2:end])
+    SE_linear_combination_RES=sqrt.(denominator_RES[2:end])
+    SE_linear_combination_NAI=diag(SE_linear_combination_NAI)
+    SE_linear_combination_NAI=sqrt.(SE_linear_combination_NAI[2:end])
 
 end
 
