@@ -956,7 +956,7 @@ function do_Pii(X, clustering_var)
         zexact = zeros(size(X,2))
         col = elist_2[i]
         row = elist_1[i]
-        cg!(zexact, xx, X[col,:], Pl = P , log=true, maxiter=300))
+        cg!(zexact, xx, X[col,:], Pl = P , log=true, maxiter=300)
 
         Pii[i]=X[row,:]*zexact
     end        
@@ -1116,6 +1116,3 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
 
 end
 
-
-
-end
