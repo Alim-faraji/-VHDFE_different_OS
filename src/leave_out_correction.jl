@@ -925,9 +925,10 @@ function check_clustering(clustering_var)
             end
         end
     
-        sort!(list_final, (:row));
-    
-        return (list_final = Matrix(list_final) , nnz_2 = size(list_final,1) )  
+        sort!(list_final, (:row))
+        list_final = Matrix(list_final)
+
+        return (list_final = list_final , nnz_2 = size(list_final,1) )  
 
 end
 
@@ -944,21 +945,22 @@ function do_Pii(X, clustering_var)
     P = aspreconditioner(ruge_stuben(xx))
 
     #Return the structure of the indexes associated with the clustering variable
-    elist = check_clustering(clustering_var);
+    elist, nnz_2 = check_clustering(clustering_var)
     M=size(elist,1)
 
     #Set elist 
     elist_1 = elist[:,1]
     elist_2 = elist[:,2]
-    Pii=zeros(M,1)
+    Pii=zeros(M)
 
-    Threads.@threads for i=1:M
+    #Threads.@threads for i=1:M
+    for i=1:M
         zexact = zeros(size(X,2))
         col = elist_2[i]
         row = elist_1[i]
         cg!(zexact, xx, X[col,:], Pl = P , log=true, maxiter=300)
 
-        Pii[i]=X[row,:]*zexact
+        Pii[i]= (SparseMatrixCSC{Float64,Int64}(X[row,:])'*zexact)[1]
     end        
 
     Lambda_P = sparse(elist[:,1],elist[:,2],Pii,n,n)
@@ -979,8 +981,8 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
     xx=X'*X
     xy=X'*y
     P = aspreconditioner(ruge_stuben(xx))
-    beta = zeros(length(y))
-    cg!(beta,xx , SparseMatrixCSC{Float64,Int64}(y), Pl = P  , log=true, maxiter=300)
+    beta = zeros(size(X,2))
+    cg!(beta,xx , xy, Pl = P  , log=true, maxiter=300)
     eta=y-X*beta
     
     # PART 1B: VERIFY LEAVE OUT COMPUTATION
@@ -988,7 +990,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
         Lambda_P=do_Pii(X,clustering_var)
     end
 
-    if Lambda_P != nothing && clusering_var !=nothing
+    if Lambda_P != nothing && clustering_var !=nothing
         nnz_1=nnz(Lambda_P)
         nnz_2=check_clustering(clustering_var).nnz_2
 
@@ -1024,13 +1026,13 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
     denominator_RES=zeros(r,1)
 
     for q=1:r
-        v=sparse(q,1,1,r,1)
-        v=zz\v
+        v=sparse(q*ones(r),ones(r),1.0,r,1)
+        v=zz\[v...]
         v=Z*v
         v=Transform'*v
 
         right = zeros(length(v))
-        cg!(right,xx , SparseMatrixCSC{Float64,Int64}(v), Pl = P  , log=true, maxiter=300)
+        cg!(right,xx , v, Pl = P  , log=true, maxiter=300)
 
         left=right' 
 
@@ -1038,7 +1040,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
         denominator_RES[q]=left*(X'*sigma_i_res*X)*right
     end   
 
-    test_statistic=numerator./(sqrt(denominator))
+    test_statistic=numerator./(sqrt.(denominator))
     #zz_inv=zz^(-1)
     SE_linear_combination_NAI=zz\(Z'*sigma_i_chet*Z)/zz
 
@@ -1063,23 +1065,26 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
 
     # PART 5: Joint-test. Quadratic form beta'*A*beta
     if restrict  == nothing 
-        restrict=sparse(collect(1:r-1),collect(2:r),1,r-1,r)
+        restrict=sparse(collect(1:r-1),collect(2:r),1.0,r-1,r)
     end
 
     v=restrict*(zz\(Z'*Transform))
     v=v'
-    v=sparse(v)
+    #v=sparse(v) #ldiv doesn't work for sparse RHS
     r=size(v,2)
     
     #Auxiliary
-    aux=xx\v
+    aux=xx\v[:,:]
     opt_weight=v'*aux
     opt_weight=opt_weight^(-1)
     opt_weight=(1/r)*(opt_weight+opt_weight')/2
 
     #Eigenvalues, eigenvectors, and relevant components
-    lambda , Qtilde = eigen( v*opt_weight*v' ,  xx)
-    lambda=diag(lambda)
+    lambda , Qtilde = eigs(v*opt_weight*v', xx; nev=r,ritzvec=true)
+    #lambdaS, QtildeS = eigs(v*opt_weight*v', xx; nev=1,which=:SM,ritzvec=true)
+    #lambdaS = [lambdaL; lambdaS]
+    #Qtilde = hcat(QtildeL,QtildeS)
+    
     W=X*Qtilde
     V_b=W'*sigma_i*W
 
@@ -1115,4 +1120,3 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
     SE_linear_combination_NAI=sqrt.(SE_linear_combination_NAI[2:end])
 
 end
-
