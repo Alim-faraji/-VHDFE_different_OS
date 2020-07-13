@@ -970,7 +970,7 @@ end
 
 
 
-function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, restrict=nothing, nsim = 10000)
+function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false; labels=nothing, restrict=nothing, nsim = 10000)
     #SET DIMENSIONS
     n=size(X,1)
     K=size(X,2)
@@ -1064,53 +1064,57 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; labels=nothing, res
 
 
     # PART 5: Joint-test. Quadratic form beta'*A*beta
-    if restrict  == nothing 
-        restrict=sparse(collect(1:r-1),collect(2:r),1.0,r-1,r)
+    if joint_test == true 
+
+        if restrict  == nothing 
+            restrict=sparse(collect(1:r-1),collect(2:r),1.0,r-1,r)
+        end
+
+        v=restrict*(zz\(Z'*Transform))
+        v=v'
+        #v=sparse(v) #ldiv doesn't work for sparse RHS
+        r=size(v,2)
+        
+        #Auxiliary
+        aux=xx\v[:,:]
+        opt_weight=v'*aux
+        opt_weight=opt_weight^(-1)
+        opt_weight=(1/r)*(opt_weight+opt_weight')/2
+
+        #Eigenvalues, eigenvectors, and relevant components
+        lambda , Qtilde = eigs(v*opt_weight*v', xx; nev=r,ritzvec=true)
+        #lambdaS, QtildeS = eigs(v*opt_weight*v', xx; nev=1,which=:SM,ritzvec=true)
+        #lambdaS = [lambdaL; lambdaS]
+        #Qtilde = hcat(QtildeL,QtildeS)
+        
+        W=X*Qtilde
+        V_b=W'*sigma_i*W
+
+        #Now focus on obtaining matrix Lambda_B with the A test associated with a joint hypothesis testing.
+        Bii=opt_weight^(0.5)*aux'; 
+        Bii=Bii*X'
+        Bii=Bii'
+        Bii = 0.5*(Bii[rows,:].*Bii[columns,:] + Bii[columns,:].*Bii[rows,:]) 
+        Bii = sum(Bii,dims=2)
+        Lambda_B=sparse(rows,columns,Bii,n,n)
+
+        #Leave Out Joint-Statistic
+        stat=(v'*beta)'*opt_weight*(v'*beta)-y'*Lambda_B*eta_h
+
+        #Now simulate critical values under the null.
+        mu=zeros(r,1)    
+        sigma = V_b
+        b_sim = MvNormal(mu,sigma)
+        b_sim = rand(b_sim, nsim)
+
+        theta_star_sim=sum(lambda'.*(b_sim.^2 - diag(V_b)'),2)
+        pvalue=mean(theta_star_sim.>stat)
+
+        #Report
+        println("Joint-Test Statistic: ", stat)
+        println("p-value: ", pvalue)
+
     end
-
-    v=restrict*(zz\(Z'*Transform))
-    v=v'
-    #v=sparse(v) #ldiv doesn't work for sparse RHS
-    r=size(v,2)
-    
-    #Auxiliary
-    aux=xx\v[:,:]
-    opt_weight=v'*aux
-    opt_weight=opt_weight^(-1)
-    opt_weight=(1/r)*(opt_weight+opt_weight')/2
-
-    #Eigenvalues, eigenvectors, and relevant components
-    lambda , Qtilde = eigs(v*opt_weight*v', xx; nev=r,ritzvec=true)
-    #lambdaS, QtildeS = eigs(v*opt_weight*v', xx; nev=1,which=:SM,ritzvec=true)
-    #lambdaS = [lambdaL; lambdaS]
-    #Qtilde = hcat(QtildeL,QtildeS)
-    
-    W=X*Qtilde
-    V_b=W'*sigma_i*W
-
-    #Now focus on obtaining matrix Lambda_B with the A test associated with a joint hypothesis testing.
-    Bii=opt_weight^(0.5)*aux'; 
-    Bii=Bii*X'
-    Bii=Bii'
-    Bii = 0.5*(Bii[rows,:].*Bii[columns,:] + Bii[columns,:].*Bii[rows,:]) 
-    Bii = sum(Bii,dims=2)
-    Lambda_B=sparse(rows,columns,Bii,n,n)
-
-    #Leave Out Joint-Statistic
-    stat=(v'*beta)'*opt_weight*(v'*beta)-y'*Lambda_B*eta_h
-
-    #Now simulate critical values under the null.
-    mu=zeros(r,1)    
-    sigma = V_b
-    b_sim = MvNormal(mu,sigma)
-    b_sim = rand(b_sim, nsim)
-
-    theta_star_sim=sum(lambda'.*(b_sim.^2 - diag(V_b)'),2)
-    pvalue=mean(theta_star_sim.>stat)
-
-    #Report
-    println("Joint-Test Statistic: ", stat)
-    println("p-value: ", pvalue)
 
     test_statistic=test_statistic[2:end]
     linear_combination=numerator[2:end]
