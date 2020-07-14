@@ -1095,19 +1095,20 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false; 
         Bii=Bii*X'
         Bii=Bii'
         Bii = 0.5*(Bii[rows,:].*Bii[columns,:] + Bii[columns,:].*Bii[rows,:]) 
-        Bii = sum(Bii,dims=2)
+        Bii = sum(Bii,dims=2)[:]
         Lambda_B=sparse(rows,columns,Bii,n,n)
 
         #Leave Out Joint-Statistic
         stat=(v'*beta)'*opt_weight*(v'*beta)-y'*Lambda_B*eta_h
 
         #Now simulate critical values under the null.
-        mu=zeros(r,1)    
+        mu=zeros(r)    
         sigma = V_b
         b_sim = MvNormal(mu,sigma)
         b_sim = rand(b_sim, nsim)
 
-        theta_star_sim=sum(lambda'.*(b_sim.^2 - diag(V_b)'),2)
+        #theta_star_sim=sum(lambda'.*(b_sim.^2 - diag(V_b)'),2)
+        theta_star_sim = sum(lambda.*b_sim.^2 .- lambda.* diag(V_b),dims=1)
         pvalue=mean(theta_star_sim.>stat)
 
         #Report
