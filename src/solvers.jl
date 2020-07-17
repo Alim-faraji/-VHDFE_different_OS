@@ -2,7 +2,7 @@
 
 # Wrap the LDLinv object as a preallocated linear operator
 function approxcholOperator(ldli::Laplacians.LDLinv{Tind,Tval},buff::Vector{Tval}) where {Tind,Tval}
-    prod = @closure rhs -> LDLsolver!(buff,ldli,rhs)
+    prod = @closure rhs -> Laplacians.LDLsolver!(buff,ldli,rhs)
     return PreallocatedLinearOperator{Tval}(length(ldli.d), length(ldli.d), true, true, prod, nothing, nothing)
 end
 
