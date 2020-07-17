@@ -9,7 +9,7 @@ using LinearOperators, FastClosures
 include("init.jl")
 include("leave_out_correction.jl")
 include("parameters_settings.jl")
-include("solver.jl")
+include("solvers.jl")
 
 export drop_single_obs
 export lss
