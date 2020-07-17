@@ -1,7 +1,7 @@
 
 
 # Wrap the LDLinv object as a preallocated linear operator
-function approxCholOperator(ldli::Laplacians.LDLinv{Tind,Tval},buff::Vector{Tval}) where {Tind,Tval}
+function approxcholOperator(ldli::Laplacians.LDLinv{Tind,Tval},buff::Vector{Tval}) where {Tind,Tval}
     prod = @closure rhs -> LDLsolver!(buff,ldli,rhs)
     return PreallocatedLinearOperator{Tval}(length(ldli.d), length(ldli.d), true, true, prod, nothing, nothing)
 end

@@ -15,6 +15,6 @@ export drop_single_obs
 export lss
 export initialize_auxiliary_variables
 export Settings, CMGPreconditionedLLS, AMGPreconditionedLLS, DirectLLS, JLAAlgorithm
-export approxCholOperator
+export approxcholOperator
 
 end
