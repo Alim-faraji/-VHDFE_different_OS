@@ -26,7 +26,7 @@ function approxcholSolver(sddm::AbstractArray, P::PreallocatedLinearOperator, la
     f = function(b;tol=tol_, maxits=maxits_, verbose=verbose_)
         xaug = Krylov.cg(la,[b; -sum(b)] .- Laplacians.mean([b; -sum(b)]), M=P, rtol = tol, itmax=maxits, verbose=verbose)[1]
         xaug .= xaug .- xaug[end]
-        return xaug[1:a.n]
+        return xaug[1:end-1]
     end
 
     return f
@@ -46,7 +46,7 @@ function approxcholSolver(sddm::AbstractArray, ldli::Laplacians.LDLinv, la::Abst
     f = function(b;tol=tol_, maxits=maxits_, verbose=verbose_)
         xaug = Krylov.cg(la,[b; -sum(b)] .- Laplacians.mean([b; -sum(b)]), M=P, rtol = tol, itmax=maxits, verbose=verbose)[1]
         xaug .= xaug .- xaug[end]
-        return xaug[1:a.n]
+        return xaug[1:end-1]
     end
 
     return f
@@ -70,7 +70,7 @@ function approxcholSolver(sddm::AbstractArray; tol::Real=1e-6, maxits=300, verbo
     f = function(b;tol=tol_, maxits=maxits_, verbose=verbose_)
         xaug = Krylov.cg(la,[b; -sum(b)] .- Laplacians.mean([b; -sum(b)]), M=P, rtol = tol, itmax=maxits, verbose=verbose)[1]
         xaug .= xaug .- xaug[end]
-        return xaug[1:a.n]
+        return xaug[1:end-1]
     end
 
     return f
