@@ -334,8 +334,13 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
         Bii_pe_movers= settings.person_effects == true ? zeros(M) : nothing
 
         #Initializing dependent variables for solver
-        Xright = sparse((1:M),elist_JLL[:,1],1.0,M,N+J-1)
-        Xright = Xright .+ sparse((1:M),elist_JLL[:,2],-1.0,M,N+J-1) 
+        Xright = sparse(collect(1:M),elist_JLL[:,1],1.0,M,N+J)
+        Xright = Xright .+ sparse(collect(1:M),elist_JLL[:,2],-1.0,M,N+J) 
+        # N+J x N+J-1 restriction matrix
+        S= sparse(1.0I, J-1, J-1)
+        S=vcat(S,sparse(-zeros(1,J-1)))
+
+        X = hcat(X[1:N,:], X[N+1:end,:]*S)
 
         for i=1:M
 
