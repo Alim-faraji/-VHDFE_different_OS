@@ -846,9 +846,8 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
     # PART 1: ESTIMATE HIGH DIMENSIONAL MODEL
     xx=X'*X
     xy=X'*y
-    P = aspreconditioner(ruge_stuben(xx))
-    beta = zeros(size(X,2))
-    cg!(beta,xx , xy, Pl = P  , log=true, maxiter=300)
+    compute_sol = approxchol_sddm(xx;verbose=true)
+    beta = compute_sol([xy...];verbose=false)
     eta=y-X*beta
     
     # PART 1B: VERIFY LEAVE OUT COMPUTATION
@@ -897,8 +896,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
         v=Z*v
         v=Transform'*v
 
-        right = zeros(length(v))
-        cg!(right,xx , v, Pl = P  , log=true, maxiter=300)
+        right = compute_sol(v;verbose=false)
 
         left=right' 
 
