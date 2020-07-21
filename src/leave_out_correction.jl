@@ -340,7 +340,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
         S= sparse(1.0I, J-1, J-1)
         S=vcat(S,sparse(-zeros(1,J-1)))
 
-        X = hcat(X[1:N,:], X[N+1:end,:]*S)
+        Xright = hcat(Xright[:,1:N], Xright[:,N+1:end]*S)
 
         for i=1:M
 
