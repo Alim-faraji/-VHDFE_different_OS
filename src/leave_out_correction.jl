@@ -340,7 +340,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
         for i=1:M
 
             #Only one inversion needed for exact alg
-            zexact = compute_sol( Xright[i,:][:,:] ; verbose=false)
+            zexact = compute_sol( [Xright[i,:]...] ; verbose=false)
 
             #Compute Pii
             Pii_movers[i] = Xright[i,:]'*zexact
@@ -394,7 +394,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
                     first = index_sel[1]
                     Xuse = X[first,:]
 
-                    ztilde = compute_sol(X[first,:][:,:] ;verbose=false)
+                    ztilde = compute_sol([X[first,:]...] ;verbose=false)
                     
                     aux_right = ztilde[1:N]
                     aux_left = ztilde[1:N]
@@ -426,7 +426,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
         #for i =1:2
 
                 #Again, one inversion needed
-                zexact = compute_sol(Xright[i,:][:,:];verbose=false)
+                zexact = compute_sol([Xright[i,:]...];verbose=false)
 
                 #Compute Pii
                 Pii[i] = Xleft[i,:]'*zexact
@@ -626,7 +626,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
                     first=index_sel[1]
                     Xuse=X[first,:]
 
-                    ztilde = compute_sol(X[first,:][:,:] ; verbose=false)
+                    ztilde = compute_sol([X[first,:]...] ; verbose=false)
                     
                     aux_right=ztilde[1:N]
                     aux_left=ztilde[1:N]
@@ -779,7 +779,7 @@ function do_Pii(X, clustering_var)
         col = elist_2[i]
         row = elist_1[i]
         #cg!(zexact, xx, X[col,:], Pl = P , log=true, maxiter=300)
-        zexact = compute_sol(X[col,:][:,:],verbose=false)
+        zexact = compute_sol([X[col,:]...],verbose=false)
 
         Pii[i]= (SparseMatrixCSC{Float64,Int64}(X[col,:])'*zexact)[1]
     end        
