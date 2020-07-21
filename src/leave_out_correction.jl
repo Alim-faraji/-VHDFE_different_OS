@@ -351,8 +351,8 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
             Pii_movers[i] = Xright[i,:]'*zexact
 
             #Compute Bii for firms
-            aux_right = zexact[N+1:N+J-1,:]
-            aux_left = zexact[N+1:N+J-1,:]
+            aux_right = zexact[N+1:N+J-1]
+            aux_left = zexact[N+1:N+J-1]
 
             COV = cov(X[:,N+1:N+J-1]*aux_left,X[:,N+1:N+J-1]*aux_right)
             Bii_fe_movers[i] = COV[1]*(NT-1)
@@ -373,6 +373,8 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
 
         end
 
+        println("Leverages Computed!")
+        
         #Assign Step
         Pii_movers = sparse(match_id_movers,ones(Int,length(match_id_movers)),Pii_movers[:,1],Nmatches,1)
         Pii_stayers = sparse(stayers_matches_sel,ones(Int,length(stayers_matches_sel)),[Tinv[x] for x in findall(x->x==true,sel_stayers)],Nmatches,1)
