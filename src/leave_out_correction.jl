@@ -710,20 +710,20 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             rademach = rademach ./sqrt(p)
 
 
-            Zleft = compute_sol( rademach*Xleft ; verbose=false)
+            Zleft = compute_sol( [rademach*Xleft...] ; verbose=false)
             #Zright = lss(settings.lls_algorithm, X, rademach*Xright, settings)
 
             Pii = Pii .+ (X*Zleft).^2
 
             rademach = rademach .- mean(rademach)
 
-            aux = compute_sol(rademach*Fvar ;verbose=false)
+            aux = compute_sol( [rademach*Fvar...] ;verbose=false)
             ZF = X*aux 
             
             Bii_fe = Bii_fe .+ ZF.^2 ./NT
 
             if settings.person_effects == true |    settings.cov_effects == true
-                aux = compute_sol( rademach*Dvar ;verbose=false)
+                aux = compute_sol( [rademach*Dvar...] ;verbose=false)
                 ZD = X*aux
             end
 
