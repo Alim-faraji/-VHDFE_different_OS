@@ -610,7 +610,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
         Bii_pe_movers= settings.person_effects == true ? zeros(M) : nothing
 
         #Initializing dependent variables for LSS
-        Fvar= hcat(spzeros(NT,N), X[:,N+1:J-1])
+        Fvar= hcat(spzeros(NT,N), X[:,N+1:N+J-1])
         Dvar=hcat(X[:,N], spzeros(NT,J-1))
 
         Threads.@threads for i=1:p
@@ -623,7 +623,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             Z  = compute_sol( [rademach*X...] ; verbose=false)
 
             rademach = rademach .- mean(rademach)
-            ZB = compute_sol( [rademach * Fvar...] ; verbose=false)
+            ZB = compute_sol( [rademach*Fvar...] ; verbose=false)
 
 
             if settings.person_effects == true | settings.cov_effects == true
