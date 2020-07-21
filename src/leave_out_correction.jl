@@ -618,7 +618,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             #Draw Rademacher entry
             rademach = rand(1,NT) .> 0.5
             rademach = rademach - (rademach .== 0)
-            rademach = rademach ./sqrt(scale)
+            rademach = rademach ./sqrt(p)
 
             Z  = compute_sol( rademach*X ; verbose=false)
 
