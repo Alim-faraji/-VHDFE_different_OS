@@ -4,7 +4,7 @@ using DataDeps, CSV
 using DataFrames, DataFramesMeta, Parameters, AlgebraicMultigrid
 using LinearAlgebra, SparseArrays, Random, Statistics
 using SparseArrays, IterativeSolvers, LightGraphs, VectorizedRoutines, CSVFiles, DataFramesMeta, Laplacians
-using LinearOperators, FastClosures, Krlov
+using LinearOperators, FastClosures, Krylov
 
 include("init.jl")
 include("leave_out_correction.jl")
