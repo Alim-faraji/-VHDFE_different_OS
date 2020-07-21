@@ -620,14 +620,14 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             rademach = rademach - (rademach .== 0)
             rademach = rademach ./sqrt(p)
 
-            Z  = compute_sol( rademach*X ; verbose=false)
+            Z  = compute_sol( [rademach*X...] ; verbose=false)
 
             rademach = rademach .- mean(rademach)
-            ZB = compute_sol( rademach * Fvar ; verbose=false)
+            ZB = compute_sol( [rademach * Fvar...] ; verbose=false)
 
 
             if settings.person_effects == true | settings.cov_effects == true
-                ZB_pe = compute_sol( rademach*Dvar ; verbose=false)
+                ZB_pe = compute_sol( [rademach*Dvar...] ; verbose=false)
             end   
 
             Z = [Z;0.0]
