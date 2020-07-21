@@ -611,7 +611,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
 
         #Initializing dependent variables for LSS
         Fvar= hcat(spzeros(NT,N), X[:,N+1:N+J-1])
-        Dvar=hcat(X[:,N], spzeros(NT,J-1))
+        Dvar=hcat(X[:,1:N], spzeros(NT,J-1))
 
         Threads.@threads for i=1:p
 
