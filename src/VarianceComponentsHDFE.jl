@@ -10,9 +10,9 @@ include("init.jl")
 include("leave_out_correction.jl")
 include("parameters_settings.jl")
 
-export drop_single_obs
-export lss
-export initialize_auxiliary_variables
-export Settings, CMGPreconditionedLLS, AMGPreconditionedLLS, DirectLLS, JLAAlgorithm
+export find_connected_set,prunning_connected_set,drop_single_obs
+export compute_movers, check_clustering, eff_res
+export do_Pii, lincom_KSS, compute_matchid
+export Settings, JLAAlgorithm, ExactAlgorithm, AbstractLeverageAlgorithm
 
 end
