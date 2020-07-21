@@ -208,8 +208,48 @@ function drop_single_obs(yvec, idvar, firmidvar,obs_id)
     return (obs_id = obs_id , y = yvec , id = id, firmid = firmid )
 end
 
+#4) Finds the observations connected for every cluster
 
-#4) Compute Movers 
+function index_constr(clustering_var, id, match_id )
+    NT = length(clustering_var)
+    counter = ones(size(clustering_var,1));
+    
+    #Indexing obs number per worked/id
+    gcs = Int.(@transform(groupby(DataFrame(counter = counter, id = id), :id), gcs = cumsum(:counter)).gcs);
+    maxD = maximum(gcs);
+
+    index = collect(1:NT);
+    
+    #This will be the output, and we will append observations to it in the loop
+    list_final=DataFrame(row = Int64[],col = Int64[], match_id = Int64[], id_cluster = Int64[]);
+
+
+    for t=1:maxD
+    rowsel =  findall(x->x==true,gcs.==t);
+    list_base = DataFrame( id_cluster= [clustering_var[x] for x in rowsel], row = 
+    [index[x] for x in rowsel] , match_id = [match_id[x] for x in rowsel]  );
+
+        for tt=t:maxD
+            colsel =  findall(x->x==true,gcs.==tt);
+            list_sel =  DataFrame( id_cluster= [clustering_var[x] for x in colsel], col = 
+            [index[x] for x in colsel] );
+
+            merge = outerjoin(list_base, list_sel, on = :id_cluster)
+            merge = dropmissing(merge)
+            merge = merge[:,[:row, :col, :match_id, :id_cluster]]
+
+            append!(list_final, merge)
+
+        end
+    end
+
+    sort!(list_final, (:row));
+
+    return Matrix(list_final)
+
+end
+
+#5) Compute Movers 
 function compute_movers(id,firmid)
 
     gcs = [NaN; id[1:end-1]]
@@ -284,7 +324,7 @@ end
 function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
 
     #Indexing Observations
-    elist, nnz2 = check_clustering(collect(1:size(X,1)))
+    elist = index_constr(collect(1:length(id)), id, match_id )
     
     #Dimensions
     NT = size(X,1)
@@ -372,8 +412,6 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
             end
 
         end
-
-        println("Leverages Computed!")
         
         #Assign Step
         Pii_movers = sparse(match_id_movers,ones(Int,length(match_id_movers)),Pii_movers[:,1],Nmatches,1)
@@ -401,7 +439,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
                     first = index_sel[1]
                     Xuse = X[first,:]
 
-                    ztilde = compute_sol([X[first,:]...] ;verbose=false)
+                    ztilde = compute_sol([Xuse...] ;verbose=false)
                     
                     aux_right = ztilde[1:N]
                     aux_left = ztilde[1:N]
@@ -466,14 +504,12 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
     #Create matrices
     rows = elist[:,1]
     cols = elist[:,2]
-    index_cluster = elist[:,3]
+    index_cluster = match_id    
 
     if K==0
         Pii = [Pii[x] for x in index_cluster]
         Bii_fe = [Bii_fe[x] for x in index_cluster]
-
-        println("Preparing to build Lambda matrices.\n")
-
+        
         if settings.cov_effects == true
             Bii_cov = [Bii_cov[x] for x in index_cluster]
         end
@@ -523,7 +559,7 @@ end
 function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
 
     #Indexing Observations
-    elist, nnz2 = check_clustering(collect(1:length(id)))
+    elist = index_constr(collect(1:length(id)), id, match_id )
     
     #Dimensions
     NT=size(X,1)
@@ -593,6 +629,10 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             if settings.person_effects == true | settings.cov_effects == true
                 ZB_pe = compute_sol( rademach*Dvar ; verbose=false)
             end   
+
+            Z = [Z;0.0]
+            ZB = [Z;0.0]
+            ZB_pe = [Z;0.0]
 
             #Computing
             Pii_movers = Pii_movers .+ ( [Z[j]  for j in elist_JLL[:,1] ]  .- [Z[j]  for j in elist_JLL[:,2] ] ) .* ( [Z[j]  for j in elist_JLL[:,3] ]  .- [Z[j]  for j in elist_JLL[:,4] ] )
@@ -708,8 +748,6 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
     if K==0
         Pii = [Pii[x] for x in index_cluster]
         Bii_fe = [Bii_fe[x] for x in index_cluster]
-
-        println("Preparing to build Lambda matrices.\n")
 
         if settings.cov_effects == true
             Bii_cov = [Bii_cov[x] for x in index_cluster]
