@@ -791,7 +791,7 @@ end
 
 
 #8) Performs Statistical Inference on Results
-function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false; labels=nothing, restrict=nothing, nsim = 10000)
+function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, labels=nothing, restrict=nothing, nsim = 10000)
     #SET DIMENSIONS
     n=size(X,1)
     K=size(X,2)
