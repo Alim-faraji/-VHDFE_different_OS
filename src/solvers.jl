@@ -17,7 +17,7 @@ end
 
 
 # Compute a solver for a grounded system (SDDM matrix) with a PreallocatedLinearOperator, and an adjacency matrix
-function approxcholSolver(sddm::AbstractArray, P::PreallocatedLinearOperator, la::AbstractArray; tol::Real=1e-6, maxits=300, verbose=false)
+function approxcholSolver(P::PreallocatedLinearOperator, la::AbstractArray; tol::Real=1e-6, maxits=300, verbose=false)
 
     tol_=tol
     maxits_=maxits
@@ -34,7 +34,7 @@ function approxcholSolver(sddm::AbstractArray, P::PreallocatedLinearOperator, la
 end
 
 # Compute a solver for a grounded system (SDDM matrix) with a LDLinv object, and an adjacency matrix
-function approxcholSolver(sddm::AbstractArray, ldli::Laplacians.LDLinv, la::AbstractArray; tol::Real=1e-6, maxits=300, verbose=false)
+function approxcholSolver(ldli::Laplacians.LDLinv, la::AbstractArray; tol::Real=1e-6, maxits=300, verbose=false)
 
     buff = zeros(length(ldli.d))
     P = approxcholOperator(ldli,buff)
