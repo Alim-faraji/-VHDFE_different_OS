@@ -960,6 +960,9 @@ function approxchol_lap1(a::SparseMatrixCSC{Tv,Ti};
 
 end
 
+
+# TODO: remove later
+#=
 """
     solver = approxchol_sddm(sddm); x = solver(b);
     solver = approxchol_sddm(sddm; tol=1e-6, maxits=1000, maxtime=Inf, verbose=false, pcgIts=Int[], params=ApproxCholParams())
@@ -970,7 +973,7 @@ Not yet optimized directly for sddm.
 For more info, see http://danspielman.github.io/Laplacians.jl/latest/usingSolvers/index.html
 """
 approxchol_sddm = sddmWrapLap(approxchol_lap)
-
+=#
 #===============================
 
  Compute only the LDLinv preconditioner
