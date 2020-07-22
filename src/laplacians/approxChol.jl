@@ -587,6 +587,7 @@ function LDLsolver(ldli::LDLinv, b::Vector)
     return y
 end
 
+# Must return y (as opposed to nothing) because of Krylov/LinearOperators usage
 function LDLsolver!(y::Vector, ldli::LDLinv, b::Vector)
     y .= b
 

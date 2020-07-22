@@ -5,6 +5,15 @@ Graphs are represented by sparse adjacency matrices, etc.
 module Laplacians
 
 
+  using LinearAlgebra, SparseArrays, Statistics
+
+  include("approxCholTypes.jl")
+  include("approxChol.jl")
+  include("graphOps.jl")
+
+  export adj, lap, extendMatrix, approxchol_lap_pc, LDLsolver!, LDLinv
+
+  #=
   function __init__()
 
     #=
@@ -30,7 +39,7 @@ module Laplacians
   using SparseArrays
   using Random
   using LinearAlgebra
-  using Statistics
+  using Statistics # need this
   using Printf
 
   using DelimitedFiles
@@ -96,6 +105,8 @@ module Laplacians
   export writeIJV, read_graph
 
   include("graphOps.jl")
+
+  export extendMatrix
 
   export unweight, unweight!
   export mapweight
@@ -194,6 +205,7 @@ module Laplacians
   include("approxCholTypes.jl")
   include("approxChol.jl")
   export approxchol_lap, ApproxCholParams, approxchol_sddm
+  export LDLsolver!, approxchol_lap_pc
 
   include("fiedler.jl")
   export fiedler
@@ -227,5 +239,7 @@ module Laplacians
   export cholmod_perm, ask_cholmod
 
   include("deprecated.jl")
+
+  =#
 
 end # module Laplacians.jl
