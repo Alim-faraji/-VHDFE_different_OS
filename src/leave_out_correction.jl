@@ -1014,6 +1014,8 @@ function leave_out_estimation(y,id,firmid,controls, settings)
     K = controls ==nothing ? 0 : size(controls,2)
     nparameters = N + J + K
 
+    match = compute_matchid(id, firmid)
+
     #Worker Dummies
     D = sparse(collect(1:NT),id,1)
 
