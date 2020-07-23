@@ -654,6 +654,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
 
         end
 
+        println("Computed Pii , Bii for movers")
         #Assign Step
         Pii_movers=sparse(match_id_movers,ones(Int,length(match_id_movers)),Pii_movers[:,1],Nmatches,1)
         Pii_stayers=sparse(stayers_matches_sel,ones(Int,length(stayers_matches_sel)),[Tinv[x] for x in findall(x->x==true,sel_stayers)],Nmatches,1)
