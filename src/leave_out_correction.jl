@@ -382,7 +382,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
 
         Xright = hcat(Xright[:,1:N], Xright[:,N+1:end]*S)
 
-        for i=1:M
+        Threads.@threads for i=1:M
 
             #Only one inversion needed for exact alg
             zexact = compute_sol( [Xright[i,:]...] ; verbose=false)
@@ -461,8 +461,11 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
 
         D=sparse(collect(1:NT),id,1)
         F=sparse(collect(1:NT),firmid,1)
+        S= sparse(1.0I, J-1, J-1)
+        S=vcat(S,sparse(-zeros(1,J-1)))
+
         Dvar = hcat(  D, spzeros(NT,nparameters-N) )
-        Fvar = hcat(spzeros(NT,N), F, spzeros(NT,nparameters-N-J) )
+        Fvar = hcat(spzeros(NT,N), -F*S, spzeros(NT,nparameters-N-J) )
         #Wvar = hcat(spzeros(NT,N+J), controls ) 
         Xleft = X[elist[:,1],:]
         Xright = X[elist[:,2],:]
@@ -998,4 +1001,64 @@ function compute_matchid(firmid,id)
     match_id2 = indexin(match_id2, unique(match_id2))
 
     return match_id2
+end
+
+
+#10) Leave Out Function 
+function leave_out_estimation(y,id,firmid,controls, settings)
+
+    #Create matrices for computations
+    NT = size(y,1)
+    J = maximum(firmid)
+    N = maximum(id)
+    K = controls ==nothing ? 0 : size(controls,2)
+    nparameters = N + J + K
+
+    #Worker Dummies
+    D = sparse(collect(1:NT),id,1)
+
+    #Firm Dummies
+    F = sparse(collect(1:NT),firmid,1)
+
+    # N+J x N+J-1 restriction matrix
+    S= sparse(1.0I, J-1, J-1)
+    S=vcat(S,sparse(-zeros(1,J-1)))
+
+    X = hcat(D, -F*S)
+
+    #SET DIMENSIONS
+    n=size(X,1)
+
+    # PART 1: ESTIMATE HIGH DIMENSIONAL MODEL
+    xx=X'*X
+    xy=X'*y
+    compute_sol = approxchol_sddm(xx;verbose=true)
+    beta = compute_sol([xy...];verbose=false)
+    eta=y-X*beta
+
+    pe=D * beta[1:N]
+    fe=F*S * beta[N+1:N+J-1]
+
+    σ2_ψ_AKM = var(fe)
+    σ2_α_AKM = var(pe)
+    σ2_ψα_AKM = cov(pe,fe)
+    
+
+    #Part 2: Compute Pii, Bii
+    LambdaP, LambdaBfe,LambdaBpe, LambdaBcov = eff_res(settings.leverage_algorithm, X,id,firmid,match, K, settings)  
+
+    #Compute Leaveo-out residual
+    I_Lambda_P = I-LambdaP
+    eta_h = I_Lambda_P\eta
+
+    #Compute bias corrected variance comp of Firm Effects
+    θFE = σ2_ψ_AKM -(1/NT)*y'*LambdaBfe*eta_h
+
+    θPE = settings.person_effects==true  ? σ2_α_AKM -(1/NT)*y'*LambdaBpe*eta_h : nothing
+
+    θCOV = settings.cov_effects==true ? σ2_ψα_AKM -(1/NT)*y'*LambdaBcov*eta_h : nothing
+
+
+    return θFE, θPE, θCOV
+
 end
