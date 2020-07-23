@@ -383,7 +383,8 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
 
         Xright = hcat(Xright[:,1:N], Xright[:,N+1:end]*S)
 
-        Threads.@threads for i=1:M
+        #Threads.@threads for i=1:M
+        for i=1:M
 
             #Only one inversion needed for exact alg
             zexact = compute_sol( [Xright[i,:]...] ; verbose=false)
@@ -471,8 +472,8 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
         Xleft = X[elist[:,1],:]
         Xright = X[elist[:,2],:]
 
-        Threads.@threads for i=1:M
-        #for i =1:2
+        #Threads.@threads for i=1:M
+        for i =1:M
 
                 #Again, one inversion needed
                 zexact = compute_sol([Xright[i,:]...];verbose=false)
@@ -617,7 +618,8 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
         Fvar= hcat(spzeros(NT,N), X[:,N+1:N+J-1])
         Dvar=hcat(X[:,1:N], spzeros(NT,J-1))
 
-        Threads.@threads for i=1:p
+        #Threads.@threads for i=1:p
+        for i=1:p
 
             #Draw Rademacher entry
             rademach = rand(1,NT) .> 0.5
@@ -705,8 +707,8 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
         Xleft = X[elist[:,1],:]
         Xright = X[elist[:,2],:]
 
-        Threads.@threads for i=1:p
-        #for i=1:2
+        #Threads.@threads for i=1:p
+        for i=1:p
 
             #Rademacher Entries
             rademach = rand(1,NT) .> 0.5
@@ -822,8 +824,8 @@ function do_Pii(X, clustering_var)
     elist_2 = elist[:,2]
     Pii=zeros(M)
 
-    Threads.@threads for i=1:M
-    #for i=1:M
+    #Threads.@threads for i=1:M
+    for i=1:M
         #zexact = zeros(size(X,2))
         col = elist_2[i]
         row = elist_1[i]
