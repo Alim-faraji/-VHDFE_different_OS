@@ -334,8 +334,15 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
 
     #Define solver
     S_xx = X'*X
-    # TODO: Make this in place later
-    compute_sol = approxcholSolver(S_xx, verbose=true)
+
+    # Create the solvers
+    ldli, la = computeLDLinv(S_xx)
+    buffs = zeros(size(la)[1],Threads.nthreads())
+    compute_sol = []
+    for i in 1:Threads.nthreads()
+        P = approxcholOperator(ldli,buffs[:,i])
+        push!(compute_sol,approxcholSolver(P,la))
+    end
 
     #Initialize output
     Pii = zeros(M)
@@ -383,11 +390,10 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
 
         Xright = hcat(Xright[:,1:N], Xright[:,N+1:end]*S)
 
-        #Threads.@threads for i=1:M
-        for i=1:M
+        Threads.@threads for i=1:M
 
             #Only one inversion needed for exact alg
-            zexact = compute_sol( [Xright[i,:]...] ; verbose=false)
+            zexact = compute_sol[Thread.threadid()]( [Xright[i,:]...] ; verbose=false)
 
             #Compute Pii
             Pii_movers[i] = Xright[i,:]'*zexact
@@ -430,8 +436,8 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
             Bii_pe = sparse(match_id_movers,ones(Int,length(match_id_movers)),Bii_pe_movers[:,1],Nmatches,1)
             stayers = .!movers
 
-            #Threads.@threads for t=2:maxT #T=1 have Pii=1 so need to be dropped.
-            for t=2:maxT
+            Threads.@threads for t=2:maxT #T=1 have Pii=1 so need to be dropped.
+
                 sel = (gcs.==true).*stayers.*(T.==t)
                 N_sel = sum(sel)
 
@@ -441,7 +447,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
                     first = index_sel[1]
                     Xuse = X[first,:]
 
-                    ztilde = compute_sol([Xuse...] ;verbose=false)
+                    ztilde = compute_sol[Threads.threadid()]([Xuse...] ;verbose=false)
 
                     aux_right = ztilde[1:N]
                     aux_left = ztilde[1:N]
@@ -472,11 +478,10 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
         Xleft = X[elist[:,1],:]
         Xright = X[elist[:,2],:]
 
-        #Threads.@threads for i=1:M
-        for i =1:M
+        Threads.@threads for i=1:M
 
                 #Again, one inversion needed
-                zexact = compute_sol([Xright[i,:]...];verbose=false)
+                zexact = compute_sol[Threads.threadid()]([Xright[i,:]...];verbose=false)
 
                 #Compute Pii
                 Pii[i] = Xleft[i,:]'*zexact
@@ -575,7 +580,13 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
 
     #Define solver
     S_xx = X'*X
-    compute_sol = approxcholSolver(S_xx, verbose=true)
+    ldli, la = computeLDLinv(S_xx)
+    buffs = zeros(size(la)[1],Threads.nthreads())
+    compute_sol = []
+    for i in 1:Threads.nthreads()
+        P = approxcholOperator(ldli,buffs[:,i])
+        push!(compute_sol,approxcholSolver(P,la))
+    end
 
     #Initialize output
     Pii=zeros(M)
@@ -618,23 +629,21 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
         Fvar= hcat(spzeros(NT,N), X[:,N+1:N+J-1])
         Dvar=hcat(X[:,1:N], spzeros(NT,J-1))
 
-        println("Running JLA Algorithm with ",p," simulations.")
-        #Threads.@threads for i=1:p
-        for i=1:p
+        Threads.@threads for i=1:p
 
             #Draw Rademacher entry
             rademach = rand(1,NT) .> 0.5
             rademach = rademach - (rademach .== 0)
             rademach = rademach ./sqrt(p)
 
-            Z  = compute_sol( [rademach*X...] ; verbose=false)
+            Z  = compute_sol[Threads.threadid()]( [rademach*X...] ; verbose=false)
 
             rademach = rademach .- mean(rademach)
-            ZB = compute_sol( [rademach*Fvar...] ; verbose=false)
+            ZB = compute_sol[Threads.threadid()]( [rademach*Fvar...] ; verbose=false)
 
 
             if settings.person_effects == true | settings.cov_effects == true
-                ZB_pe = compute_sol( [rademach*Dvar...] ; verbose=false)
+                ZB_pe = compute_sol[Threads.threadid()]( [rademach*Dvar...] ; verbose=false)
             end
 
             Z = [Z;0.0]
@@ -655,6 +664,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
 
         end
 
+        println("Computed Pii , Bii for movers")
         #Assign Step
         Pii_movers=sparse(match_id_movers,ones(Int,length(match_id_movers)),Pii_movers[:,1],Nmatches,1)
         Pii_stayers=sparse(stayers_matches_sel,ones(Int,length(stayers_matches_sel)),[Tinv[x] for x in findall(x->x==true,sel_stayers)],Nmatches,1)
@@ -670,8 +680,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             Bii_pe=sparse(match_id_movers,ones(Int,length(match_id_movers)),Bii_pe_movers[:,1],Nmatches,1)
             stayers = .!movers
 
-            #Threads.@threads for t=2:maxT #T=1 have Pii=1 so need to be dropped.
-            for t=2:maxT
+            Threads.@threads for t=2:maxT #T=1 have Pii=1 so need to be dropped.
                 sel=(gcs.==true).*stayers.*(T.==t)
                 N_sel=sum(sel)
                 if N_sel > 0
@@ -680,7 +689,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
                     first=index_sel[1]
                     Xuse=X[first,:]
 
-                    ztilde = compute_sol([X[first,:]...] ; verbose=false)
+                    ztilde = compute_sol[Threads.threadid()]([X[first,:]...] ; verbose=false)
 
                     aux_right=ztilde[1:N]
                     aux_left=ztilde[1:N]
@@ -708,8 +717,7 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
         Xleft = X[elist[:,1],:]
         Xright = X[elist[:,2],:]
 
-        #Threads.@threads for i=1:p
-        for i=1:p
+        Threads.@threads for i=1:p
 
             #Rademacher Entries
             rademach = rand(1,NT) .> 0.5
@@ -717,20 +725,20 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             rademach = rademach ./sqrt(p)
 
 
-            Zleft = compute_sol( [rademach*Xleft...] ; verbose=false)
+            Zleft = compute_sol[Threads.threadid()]( [rademach*Xleft...] ; verbose=false)
             #Zright = lss(settings.lls_algorithm, X, rademach*Xright, settings)
 
             Pii = Pii .+ (X*Zleft).^2
 
             rademach = rademach .- mean(rademach)
 
-            aux = compute_sol( [rademach*Fvar...] ;verbose=false)
+            aux = compute_sol[Threads.threadid()]( [rademach*Fvar...] ;verbose=false)
             ZF = X*aux
 
             Bii_fe = Bii_fe .+ ZF.^2 ./NT
 
             if settings.person_effects == true |    settings.cov_effects == true
-                aux = compute_sol( [rademach*Dvar...] ;verbose=false)
+                aux = compute_sol[Threads.threadid()]( [rademach*Dvar...] ;verbose=false)
                 ZD = X*aux
             end
 
@@ -813,8 +821,13 @@ function do_Pii(X, clustering_var)
     #Set matrices for parallel environment.
     xx=X'*X
     #P = aspreconditioner(ruge_stuben(xx))
-    compute_sol = approxcholSolver(xx, verbose=true)
-
+    ldli, la = computeLDLinv(xx)
+    buffs = zeros(size(la)[1],Threads.nthreads())
+    compute_sol = []
+    for i in 1:Threads.nthreads()
+        P = approxcholOperator(ldli,buffs[:,i])
+        push!(compute_sol,approxcholSolver(P,la))
+    end
 
     #Return the structure of the indexes associated with the clustering variable
     elist, nnz_2 = check_clustering(clustering_var)
@@ -825,13 +838,12 @@ function do_Pii(X, clustering_var)
     elist_2 = elist[:,2]
     Pii=zeros(M)
 
-    #Threads.@threads for i=1:M
-    for i=1:M
+    Threads.@threads for i=1:M
         #zexact = zeros(size(X,2))
         col = elist_2[i]
         row = elist_1[i]
         #cg!(zexact, xx, X[col,:], Pl = P , log=true, maxiter=300)
-        zexact = compute_sol([X[col,:]...],verbose=false)
+        zexact = compute_sol[Threads.threadid()]([X[col,:]...],verbose=false)
 
         Pii[i]= (SparseMatrixCSC{Float64,Int64}(X[col,:])'*zexact)[1]
     end
