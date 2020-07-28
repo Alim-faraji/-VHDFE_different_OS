@@ -80,6 +80,7 @@ end
 end
 
 @testset "LeaveOut" begin 
-
+    #  @test  leave_out_estimation(y,id,firmid,nothing, settings_exact) ≈ [-0.0042 , 0.0019, 0.0037]
+    #  @test  leave_out_estimation(y,id,firmid,nothing, settings_JLA) ≈ [-0.0042 , 0.0019, 0.0037]
 end
 
