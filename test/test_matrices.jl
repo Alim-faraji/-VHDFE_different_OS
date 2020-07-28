@@ -50,7 +50,7 @@ Xtest = sparse([1;2;3;4;5;6;7;8;1;3;4;5],[1;1;2;2;3;3;4;4;5;5;5;5],[1.0;1.0;1.0;
 xxtest = Xtest'*Xtest
 compute_sol = approxcholSolver(xxtest;verbose=true)
 settings_exact = Settings(leverage_algorithm = ExactAlgorithm(), person_effects=true, cov_effects=true)
-settings_JLA = Settings(leverage_algorithm = JLAAlgorithm(), person_effects=true, cov_effects=true)
+settings_JLA = Settings(leverage_algorithm = JLAAlgorithm(num_simulations=3), person_effects=true, cov_effects=true)
 
 @testset "Clustering" begin
     @test check_clustering(id_lo).nnz_2 == 12
@@ -73,14 +73,16 @@ rademacher1 = rademacher1 - (rademacher1 .== 0)
     @test compute_sol([rademacher1*Xtest...];verbose=true) ≈ [ 1.0, 0.0, 1.0, -1.0, 0.0] 
 end
 
+Random.seed!(1234)
+const K=0
 @testset "LambdaMatrices" begin 
     @test    do_Pii(Xtest,obs_id_lo) == sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.75,0.75,0.5,0.5,0.75,0.75,0.5,0.5] )
-    #@test    eff_res(settings_exact.leverage_algorithm, X,id,firmid,match, K, settings_exact).Lambda_P == sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.75,0.75,0.5,0.5,0.75,0.75,0.5,0.5] )
-    #@test    eff_res(settings_JLA.leverage_algorithm, X,id,firmid,match, K, settings_JLA).Lambda_P ≈ sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.75,0.75,0.5,0.5,0.75,0.75,0.5,0.5] )
+    @test    eff_res(settings_exact.leverage_algorithm, Xtest,id_lo,firmid_lo,match_id, K, settings_exact).Lambda_P == sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.75,0.75,0.5,0.5,0.75,0.75,0.5,0.5] )
+    @test    eff_res(settings_JLA.leverage_algorithm, Xtest,id_lo,firmid_lo,match_id, K, settings_JLA).Lambda_P  ==  sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.666667,0.666667,0.5,0.5,0.666667,0.666667,0.5,0.5] )
 end
+
 
 @testset "LeaveOut" begin 
     #  @test  leave_out_estimation(y,id,firmid,nothing, settings_exact) ≈ [-0.0042 , 0.0019, 0.0037]
     #  @test  leave_out_estimation(y,id,firmid,nothing, settings_JLA) ≈ [-0.0042 , 0.0019, 0.0037]
 end
-
