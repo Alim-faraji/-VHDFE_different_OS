@@ -316,6 +316,59 @@ Finally, the function $\textit{drop\_single\_obs()}$ will delete the workers tha
 \includegraphics[scale=0.6]{leaveoutnetwork.png}    
 \end{figure}
 
+If we allow ourselves to relabel the vertex of this network starting from the workers we get the following graph: 
+
+\begin{figure}[H]
+    \centering
+\includegraphics[scale=0.6]{leaveoutnetwork_relabeled.png}    
+\end{figure}
+
+
+The dummy matrix for workers (now relabeled as vertex 1,2,3,4) can be written as: 
+
+\begin{align*}
+D = \begin{bmatrix}
+1 & 0 & 0& 0\\
+1 & 0 & 0& 0\\
+0 & 1 & 0& 0\\
+0 & 1 & 0& 0\\
+0 & 0 & 1& 0\\
+0 & 0 & 1& 0\\
+0 & 0 & 0& 1\\
+0 & 0 & 0& 1\\
+\end{bmatrix} 
+\end{align*}
+
+
+The dummy matrix for firms (now relabeled as vertex 5,6) can be written as: 
+
+\begin{align*}
+F = \begin{bmatrix}
+1 & 0 \\
+0 & 1 \\
+1 & 0 \\
+1 & 0 \\
+1 & 0 \\
+0 & 1 \\
+0 & 1 \\
+\end{bmatrix} 
+\end{align*}
+
+Our design matrix X corresponds to  $X = \begin{bmatrix} D & -F \end{bmatrix}$. Now notice what the operation $X'*X$ does : 
+
+\begin{align*}
+X'*X = \begin{bmatrix}
+2 & 0 & 0 & 0 & -1 & -1 \\
+0 & 2 & 0 & 0 & -2 & 0 \\
+0 & 0 & 2 & 0 & -1 & -2 \\
+0 & 0 & 0 & 2 & 0 & 0 \\
+-1 & -2 & -1 & 0 & 4 & 0 \\
+-1 & 0 & -1 & -2 & 0 & 4 \\
+\end{bmatrix} 
+\end{align*}
+
+Notice that the diagonals are the degree of each vertex, while the non diagonal elements represent the negative of the number of edges between vertex. Since this is a bipartite graph there are no edges between workers , or edges between firms.  In other words, the matrix $X'*X$ is a Laplacian matrix. When we normalize the last firm effects to zero it is equivalent to working with the Grounded Laplacian version of this, which eliminates the last row and column from $X'*X$.
+
 
 
 \clearpage
