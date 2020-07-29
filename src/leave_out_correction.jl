@@ -89,7 +89,6 @@ function find_connected_set(y, idvar, firmidvar; verbose=false)
 
 end
 
-
 #2) Pruning and finding Leave-Out Largest connected set
 function prunning_connected_set(yvec, idvar, firmidvar, obs_id; verbose=false)
 
@@ -317,6 +316,17 @@ function check_clustering(clustering_var)
 
         return (list_final = list_final , nnz_2 = size(list_final,1) )
 
+end
+
+# Assumes that obs_leaveoutset is an array of zeros
+function whole_prunning!(obs_leaveoutset,y,id,firmid;verbose=false)
+    obs,  y  , id , firmid  = find_connected_set(y,id,firmid,verbose=verbose)
+    obs,  y  , id , firmid  = prunning_connected_set(y,id,firmid,obs,verbose=verbose)
+    obs,  y  , id , firmid  = drop_single_obs(y,id,firmid,obs)
+    for x in obs
+        obs_leaveoutset[x] = 1
+    end
+    return nothing
 end
 
 #6) Eff res : Compute Effective Resistance - Lambda Matrices
