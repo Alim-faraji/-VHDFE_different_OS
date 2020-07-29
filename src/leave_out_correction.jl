@@ -403,7 +403,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
         Threads.@threads for i=1:M
 
             #Only one inversion needed for exact alg
-            zexact = compute_sol[Thread.threadid()]( [Xright[i,:]...] ; verbose=false)
+            zexact = compute_sol[Threads.threadid()]( [Xright[i,:]...] ; verbose=false)
 
             #Compute Pii
             Pii_movers[i] = Xright[i,:]'*zexact
