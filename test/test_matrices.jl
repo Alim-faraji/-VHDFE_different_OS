@@ -78,6 +78,10 @@ const K=0
 @testset "LambdaMatrices" begin 
     @test    do_Pii(Xtest,obs_id_lo) == sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.75,0.75,0.5,0.5,0.75,0.75,0.5,0.5] )
     @test    eff_res(settings_exact.leverage_algorithm, Xtest,id_lo,firmid_lo,match_id, K, settings_exact).Lambda_P == sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.75,0.75,0.5,0.5,0.75,0.75,0.5,0.5] )
+    @test    eff_res(settings_exact.leverage_algorithm, Xtest,id_lo,firmid_lo,match_id, K, settings_exact).Lambda_B_fe == sparse( [1,2,5,6], [1,2,5,6], [0.5,0.5,0.5,0.5] )
+    @test    eff_res(settings_exact.leverage_algorithm, Xtest,id_lo,firmid_lo,match_id, K, settings_exact).Lambda_B_pe == sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.625,0.625,0.375,0.375,0.625,0.625,0.375,0.375] )
+    @test    eff_res(settings_exact.leverage_algorithm, Xtest,id_lo,firmid_lo,match_id, K, settings_exact).Lambda_B_cov == sparse( [1,2,5,6], [1,2,5,6], [-0.25,-0.25,-0.25,-0.25] )
+
     @test    eff_res(settings_JLA.leverage_algorithm, Xtest,id_lo,firmid_lo,match_id, K, settings_JLA).Lambda_P  ==  sparse( [1,2,3,4,5,6,7,8], [1,2,3,4,5,6,7,8], [0.666667,0.666667,0.5,0.5,0.666667,0.666667,0.5,0.5] )
 end
 
