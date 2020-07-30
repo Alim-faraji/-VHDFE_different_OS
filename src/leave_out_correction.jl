@@ -940,7 +940,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
 
     #PART 4: REPORT
     println("Inference on Linear Combinations:")
-    if labels != nothing
+    if labels == nothing
         for q=2:r
             if q <= r
                 println("Linear Combination - Column Number ", q-1," of Z: ", numerator[q] )
