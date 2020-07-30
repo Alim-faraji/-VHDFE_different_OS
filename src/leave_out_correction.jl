@@ -978,6 +978,8 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
 
         #Eigenvalues, eigenvectors, and relevant components
         lambda , Qtilde = eigs(v*opt_weight*v', xx; nev=r,ritzvec=true)
+        lambda = Real.(lambda)
+        Qtilde = Real.(Qtilde)
         #lambdaS, QtildeS = eigs(v*opt_weight*v', xx; nev=1,which=:SM,ritzvec=true)
         #lambdaS = [lambdaL; lambdaS]
         #Qtilde = hcat(QtildeL,QtildeS)
@@ -1019,6 +1021,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
     SE_linear_combination_NAI=diag(SE_linear_combination_NAI)
     SE_linear_combination_NAI=sqrt.(SE_linear_combination_NAI[2:end])
 
+    return nothing 
 end
 
 #9) Creates match id using firmid id
