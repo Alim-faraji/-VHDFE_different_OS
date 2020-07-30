@@ -526,6 +526,34 @@ X' & 0
 
 \noindent where $U$ is the matrix of residuals and $Z$ is the matrix of solutions that we're interested in. We are currently unsure whether we can write Equations 7 and 8 in terms of an augmented system.
 
+\clearpage 
+
+Whenever we have a system with $S_xx$ on the left hand side we have the following \textbf{single} right hand sides: 
+
+\begin{enumerate}
+    \item $col_k(X)$ for the exact $P_{ii}$ computation.
+    \item $col_k(R_p * X)$, which is equivalent to using the $1\times n$ vector $rademacher$ and computing $rademacher * X$. This is used for the JLA computation of $P_{ii}$.
+    
+    \item $col_k(R_b * A_f)$, which is equivalent to using the $1\times n$ vector $rademacher$ and computing $rademacher * A_f$. This is used for the JLA computation of $B_{ii}$.
+    
+    \item $col_k(R_b * A_f)$, which is equivalent to using the $1\times n$ vector $rademacher$ and computing $rademacher * A_d$. This is used for the JLA computation of $B_{ii}$.
+    
+    \item $X'*y$. This is used for the computation of the fixed effects coefficients.
+\end{enumerate}
+
+It is important to mention that the matrices $A_f$ and $A_d$ can be constructed as transformations of the design matrix, $X$. The construction is done, avoiding the $n^{-1/2}$ normalization and demeaning, in the following way: 
+
+\begin{align}
+    A_f =      \begin{bmatrix}
+0_{n \times N} & X[N+1:N+J] \\
+\end{bmatrix}   
+\end{align}
+
+\begin{align}
+A_d  =   \begin{bmatrix}
+  X[1:N] & 0_{n \times J} \\
+\end{bmatrix}   
+\end{align}
 
 
 \end{document}
