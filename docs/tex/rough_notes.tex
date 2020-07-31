@@ -556,4 +556,70 @@ A_d  =   \begin{bmatrix}
 \end{align}
 
 
+
+
+\clearpage
+\section{Inference}
+
+Recall the unfeasible estimator of the (co)variance component: 
+
+\begin{align}
+\theta^* = \Hat{\beta}' A \Hat{\beta} - \sum_{i=1}^n B_{ii} \sigma_i^2
+\end{align}
+
+The inference results on this object will rely on the eigen-decomposition of the following matrix:
+
+\begin{align}
+    \Tilde{A} = S_{xx}^{-1/2}  A S_{xx}^{-1/2} 
+\end{align}
+
+The eigenvalue problem solves
+
+\begin{align}
+    \Tilde{A}  Q = Q D
+\end{align}
+
+where $D=diag(\lambda_1,\dots,\lambda_r)$ and $Q$ is a matrix of orthonormal eigenvectors. We can define the following vector $b$, which is a linear combination of r elements of $\Hat{\beta}$, and a matrix of generalized eigenvectors:
+
+\begin{align}
+    \Hat{b} = Q' S_{xx}^{1/2} \Hat{\beta}
+\end{align}
+
+\begin{align}
+    \tilde{Q} = S_{xx}^{-1/2} Q  
+\end{align}
+
+
+
+Using these definition we apply Lemma 2, and show that if $\epsilon_i \sim N(0,\sigma_i^2)$ then the following equations must hold: 
+
+
+\begin{align}
+\Hat{\beta}' A \Hat{\beta} &= \sum_{l=1}^r \lambda_l \Hat{b}^2  
+\end{align}
+
+\begin{align}
+Var(\Hat{b}) &= Q' S_{xx}^{1/2} Var(\Hat{\beta}) S_{xx}^{1/2}Q \\
+&= Q' S_{xx}^{1/2} S_{xx}^{-1} X' diag(\sigma_i^2) X S_{xx}^{-1}  S_{xx}^{1/2} Q \\
+&= \Tilde{Q}' X' diag(\sigma_i^2) X \Tilde{Q}
+\end{align}
+
+\begin{align}
+    \theta^* = \sum_{l=1}^r \lambda_l (\Hat{b}_l^2 - Var(\Hat{b_l}))
+\end{align}
+
+Now notice that instead of solving for $Q$ and constructing $\Tilde{Q}$ manually, we can solve for $\Tilde{Q}$ in the following generalized eigendecomposition problem by manipulating the original one:
+
+\begin{align}
+    S_{xx}^{-1/2} A     S_{xx}^{-1/2} Q &= Q D \\
+    A  S_{xx}^{-1/2} &=     S_{xx}^{1/2} Q D \\
+    A \Tilde{Q} &= S_{xx}     S_{xx}^{-1/2} Q D \\
+    A \Tilde{Q} &= S_{xx} \Tilde{Q} D 
+\end{align}
+
+where $Q'Q = I$, so that $\Tilde{Q}'\Tilde{Q} = S_{xx}^{-1}$, i.e. these eigenvectors must be $S_{xx}$ normalized. This fact and equation 21 can be used to check if our code is giving us the right solution to the eigendecomposition problem. 
+
+\end{document}
+
+
 \end{document}
