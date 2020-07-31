@@ -977,7 +977,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
         opt_weight=(1/r)*(opt_weight+opt_weight')/2
 
         #Eigenvalues, eigenvectors, and relevant components
-        lambda , Qtilde = eigs(v*opt_weight*v', xx; nev=r,ritzvec=true)
+        lambda , Qtilde = eigs( v*opt_weight*v', xx; nev=r,ritzvec=true)
         lambda = Real.(lambda)
         Qtilde = Real.(Qtilde)
         #lambdaS, QtildeS = eigs(v*opt_weight*v', xx; nev=1,which=:SM,ritzvec=true)
@@ -986,6 +986,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
 
         W=X*Qtilde
         V_b=W'*sigma_i*W
+        V_b = (1/2)*(V_b + V_b')
 
         #Now focus on obtaining matrix Lambda_B with the A test associated with a joint hypothesis testing.
         Bii=opt_weight^(0.5)*aux';
