@@ -618,6 +618,9 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
     cols = elist[:,2]
     index_cluster = elist[:,3]
 
+    #Censor
+    Pii[ findall(Pii.>=0.99)] .= 0.99
+
     if K==0
         Pii = [Pii[x] for x in index_cluster]
         Bii_fe = [Bii_fe[x] for x in index_cluster]
@@ -842,6 +845,9 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
     rows = elist[:,1]
     cols = elist[:,2]
     index_cluster = elist[:,3]
+
+    #Censor
+    Pii[ findall(Pii.>=0.99)] .= 0.99
 
     if K==0
         Pii = [Pii[x] for x in index_cluster]
