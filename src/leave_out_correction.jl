@@ -1079,7 +1079,7 @@ function leave_out_estimation(y,id,firmid,controls, settings)
 
     σ2_ψ_AKM = var(fe)
     σ2_α_AKM = var(pe)
-    σ2_ψα_AKM = cov(pe,fe)
+    σ2_ψα_AKM = cov(pe,-fe)
 
 
     #Part 2: Compute Pii, Bii
