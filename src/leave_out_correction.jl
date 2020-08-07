@@ -1028,7 +1028,7 @@ function lincom_KSS(y,X,Z,Transform,clustering_var,Lambda_P; joint_test =false, 
     SE_linear_combination_NAI=diag(SE_linear_combination_NAI)
     SE_linear_combination_NAI=sqrt.(SE_linear_combination_NAI[2:end])
 
-    return nothing 
+    return nothing
 end
 
 #9) Creates match id using firmid id
@@ -1079,7 +1079,7 @@ function leave_out_estimation(y,id,firmid,controls, settings)
 
     σ2_ψ_AKM = var(fe)
     σ2_α_AKM = var(pe)
-    σ2_ψα_AKM = cov(pe,fe)
+    σ2_ψα_AKM = cov(pe,-fe)
 
 
     #Part 2: Compute Pii, Bii
@@ -1099,4 +1099,17 @@ function leave_out_estimation(y,id,firmid,controls, settings)
 
     return θFE, θPE, θCOV
 
+end
+
+# Do everything naively with no inplace operations, just to get the desired result
+function compute_whole(y,id,firmid,controls,settings;verbose=false)
+
+    # compute y, id firmid, controls, settings
+    obs,  y  , id , firmid  = find_connected_set(y,id,firmid;verbose=verbose)
+    obs,  y  , id , firmid  = prunning_connected_set(y,id,firmid, obs;verbose=verbose)
+    obs,  y  , id , firmid  = drop_single_obs(y,id,firmid, obs)
+    controls == nothing ? nothing : controls[obs,:]
+
+    # What happens with controls?
+    return leave_out_estimation(y,id,firmid,controls, settings)
 end
