@@ -672,7 +672,10 @@ function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
             end
 
             if settings.cov_effects == true
+                ZB[N+1:end] .= -1*ZB[N+1:end]
+                ZB_pe[N+1:end] .= -1*ZB_pe[N+1:end]
                 Bii_cov_movers = Bii_cov_movers .+ ( [ZB[j]  for j in elist_JLL[:,1] ]  .- [ZB[j]  for j in elist_JLL[:,2] ] ) .* ( [ZB_pe[j]  for j in elist_JLL[:,3] ]  .- [ZB_pe[j]  for j in elist_JLL[:,4] ] )
+                # Bii_cov_movers = Bii_cov_movers .+ ( [ZB[j]  for j in elist_JLL[:,1] ]  .- [ZB[j]  for j in elist_JLL[:,2] ] ) .* ( [ZB_pe[j]  for j in elist_JLL[:,3] ]  .- [ZB_pe[j]  for j in elist_JLL[:,4] ] )
             end
 
         end
