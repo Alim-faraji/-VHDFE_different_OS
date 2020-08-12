@@ -529,9 +529,6 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
     #Censor
     Pii[ findall(Pii.>=0.99)] .= 0.99
 
-    #Censor
-    Pii[ findall(Pii.>=0.99)] .= 0.99
-
     if K==0
         Pii = [Pii[x] for x in index_cluster]
         Bii_fe = [Bii_fe[x] for x in index_cluster]
@@ -580,6 +577,7 @@ function eff_res(::ExactAlgorithm, X,id,firmid,match_id, K, settings)
     end
 
 end
+
 
 
 function eff_res(lev::JLAAlgorithm, X,id,firmid,match_id, K, settings)
@@ -1092,8 +1090,11 @@ function leave_out_estimation(y,id,firmid,controls,settings;resid_controls=nothi
     fe=F*S * beta[N+1:N+J-1]
 
     σ2_ψ_AKM = var(fe)
+    println("Variance of Firm Effects: ", σ2_ψ_AKM )
     σ2_α_AKM = var(pe)
+    println("Variance of Person Effects: ", σ2_α_AKM )
     σ2_ψα_AKM = cov(pe,-fe)
+    println("Covariance of Firm-Person Effects: ", σ2_ψα_AKM )
 
 
     #Part 2: Compute Pii, Bii
