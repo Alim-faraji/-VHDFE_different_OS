@@ -1,12 +1,12 @@
 module VarianceComponentsHDFE
 
-using DataDeps, CSV
+# using DataDeps
+using CSV
 using DataFrames, DataFramesMeta, Parameters
 using LinearAlgebra, SparseArrays, Random, Statistics
 using SparseArrays, LightGraphs, VectorizedRoutines, CSVFiles, DataFramesMeta
 using Distributions, Arpack
 using LinearOperators, FastClosures, Krylov
-using IterativeSolvers, AlgebraicMultigrid
 
 include("init.jl")
 include("leave_out_correction.jl")

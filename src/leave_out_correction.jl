@@ -1045,7 +1045,7 @@ end
 
 
 #10) Leave Out Function
-function leave_out_estimation(y,id,firmid,controls,settings;resid_controls=nothing)
+function leave_out_estimation(y,id,firmid,controls,settings)
 
     #Create matrices for computations
     NT = size(y,1)
@@ -1065,17 +1065,6 @@ function leave_out_estimation(y,id,firmid,controls,settings;resid_controls=nothi
     # N+J x N+J-1 restriction matrix
     S= sparse(1.0I, J-1, J-1)
     S=vcat(S,sparse(-zeros(1,J-1)))
-
-    # Handle residual controls
-    if resid_controls != nothing
-        X = hcat( D, -F*S, resid_controls)
-        xx_resid = X'*X
-        P = aspreconditioner(ruge_stuben(xx_resid))
-        b = zeros(size(X)[2])
-        xy = X'*y
-        cg!(b,xx_resid,xy,Pl=P)
-        y = y - X[:,N+J:end]*b[N+J:end]
-    end
 
     X = hcat(D, -F*S)
 
@@ -1120,15 +1109,14 @@ function leave_out_estimation(y,id,firmid,controls,settings;resid_controls=nothi
 end
 
 # Do everything naively with no inplace operations, just to get the desired result
-function compute_whole(y,id,firmid,controls,settings;resid_controls=nothing,verbose=false)
+function compute_whole(y,id,firmid,controls,settings;verbose=false)
 
     # compute y, id firmid, controls, settings
     obs,  y  , id , firmid  = find_connected_set(y,id,firmid;verbose=verbose)
     obs,  y  , id , firmid  = prunning_connected_set(y,id,firmid, obs;verbose=verbose)
     obs,  y  , id , firmid  = drop_single_obs(y,id,firmid, obs)
     controls == nothing ? nothing : controls = controls[obs,:]
-    resid_controls == nothing ? nothing : resid_controls = resid_controls[obs,:]
 
     # What happens with controls?
-    return leave_out_estimation(y,id,firmid,controls,settings,resid_controls=resid_controls)
+    return leave_out_estimation(y,id,firmid,controls,settings)
 end

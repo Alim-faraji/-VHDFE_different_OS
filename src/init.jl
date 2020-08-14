@@ -1,4 +1,5 @@
 function __init__()
+    #=
     register(DataDep("VarianceComponentsHDFE",
            "Downloading medium_nocontrols_pruned.csv, medium_controls_pruned.csv, large_nocontrols_pruned.csv, and large_controls_pruned.csv, huge_pruned_main.csv, large_controls_main.csv",
            ["https://vchdfe.s3-us-west-2.amazonaws.com/medium_pruned_main.tar.gz",
@@ -15,5 +16,6 @@ function __init__()
            "82a95b368b2f6be381f10228026ebf2ffffc7e0d80bf5580ee905adf29b26128"];
            post_fetch_method= [unpack, unpack, unpack, unpack, unpack, unpack]
        ))
+       =#
     return nothing
 end
