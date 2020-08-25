@@ -34,7 +34,7 @@
   - To compile an executable of the package run the following Julia commands.
   ```
     using PackageCompiler
-    compile_app("PathToPackageDir/VarianceComponentsHDFE", "PathToExecutableDir/VarianceComponentsHDFEExecutable)
+    create_app("PathToPackageDir/VarianceComponentsHDFE", "PathToExecutableDir/VarianceComponentsHDFEExecutable)
 
   ```
   - To run the executable you can execute in the command line as follows:
