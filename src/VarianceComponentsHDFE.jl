@@ -97,8 +97,8 @@ function real_main()
     firmid_idx = parsed_args["firmid"]
     y_idx = parsed_args["y"]
     algorithm = parsed_args["algorithm"]
-    person_effects = parsed_args["person_effects"]
-    cov_effects = parsed_args["cov_effects"]
+    # person_effects = parsed_args["person_effects"]
+    # cov_effects = parsed_args["cov_effects"]
     simulations = parsed_args["simulations"]
 
     data = CSV.read(path;header=header)
