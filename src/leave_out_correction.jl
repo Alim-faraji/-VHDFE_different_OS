@@ -1104,7 +1104,8 @@ function leave_out_estimation(y,id,firmid,controls,settings)
     θCOV = settings.cov_effects==true ? σ2_ψα_AKM -(1/NT)*y'*LambdaBcov*eta_h : nothing
 
 
-    return θFE, θPE, θCOV
+    return (θFE = θFE, θPE = θPE, θCOV = θCOV, β = beta, Dalpha = pe, Fpsi = fe, Pii = diag(LambdaP), Bii_pe = diag(LambdaBpe),
+            Bii_fe = diag(LambdaBfe), Bii_cov = diag(LambdaBcov))
 
 end
 
@@ -1118,5 +1119,7 @@ function compute_whole(y,id,firmid,controls,settings;verbose=false)
     controls == nothing ? nothing : controls = controls[obs,:]
 
     # What happens with controls?
-    return leave_out_estimation(y,id,firmid,controls,settings)
+    θFE, θPE, θCOV, β, Dalpha, Fpsi, Pii, Bii_pe, Bii_fe, Bii_cov = leave_out_estimation(y,id,firmid,controls,settings)
+    return (θFE = θFE, θPE = θPE, θCOV = θCOV, obs = obs, β = β, Dalpha = Dalpha, Fpsi = Fpsi, Pii = Pii, Bii_pe = Bii_pe,
+            Bii_fe = Bii_fe, Bii_cov = Bii_cov)
 end
