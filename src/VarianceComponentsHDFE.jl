@@ -139,7 +139,7 @@ function real_main()
                            variance_comp_firm_effects = [θFE; missings(max_length-1)],
                            variance_comp_person_effects = [θPE; missings(max_length-1)],
                            covariance_comp_effects = [θCOV; missings(max_length-1)])
-        output_path = parsed_args["output_path"],
+        output_path = parsed_args["output_path"]
         CSV.write(output_path,output)
     end
     return
