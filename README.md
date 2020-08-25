@@ -29,3 +29,17 @@
   - VSCode settings (i.e. files.eof) in https://github.com/ubcecon/tutorials/blob/master/vscode.md#general-packages-and-setup
 - The style in julia is to have minimal headers and separators in files.  So no big ugly comment headers separating sections
   - If you want to separate sections, start a comment with `## ` and it will have a visual separation in Atom.
+
+  ## Compiling an Executable
+  - To compile an executable of the package run the following Julia commands.
+  ```
+    using PackageCompiler
+    compile_app("PathToPackageDir/VarianceComponentsHDFE", "PathToExecutableDir/VarianceComponentsHDFEExecutable)
+
+  ```
+  - To run the executable you can execute in the command line as follows:
+  ```
+    PathToExecutableDir/VarianceComponentsHDFEExecutable/bin/VarianceComponentsHDFE PathToCSVDataFile/data.csv --id=1 --firmid=2 --y=4 --algorithm=JLA --simulations=1000 --write_CSV --output_path=PathToCSVOutput/output.csv
+
+  ```
+  - The first argument is required and it is the path the the CSV file containing the data. The options `--id`, `--firmid`, `--y` indicate which columns of the CSV file contain the data for the worker IDs, firm IDs, and wages. `--algorithm` can be set to `Exact` or `JLA` and `--simulations` is the number of simulations in the JLA algorithm. `--write_CSV` is a flag that indicates the output will written to a CSV file at `--output_path`.
