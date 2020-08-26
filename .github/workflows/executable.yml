@@ -1,10 +1,7 @@
 name: Executable
 
 on:
-  - workflow_dispatch:
-  - release:
-      types:
-        - created # Should we run on other types?
+  workflow_dispatch:
 
 jobs:
   build:
