@@ -20,4 +20,6 @@ jobs:
         uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.julia-version }}
+      - run: pwd
+      - run: ls -R
       - run: julia --project -e "using PackageCompiler; create_app(".", "VarianceComponentsHDFELinux")"
