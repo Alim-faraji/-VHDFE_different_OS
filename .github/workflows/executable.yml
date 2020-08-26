@@ -22,4 +22,7 @@ jobs:
           version: ${{ matrix.julia-version }}
       - run: pwd
       - run: ls -R
-      - run: julia --project -e "using PackageCompiler; create_app(".", "VarianceComponentsHDFELinux")"
+      - run: cd ..
+      - run: pwd
+      - run: ls -R
+      - run: julia -e "using PackageCompiler; create_app("VarianceComponentsHDFE", "VarianceComponentsHDFELinux")"
