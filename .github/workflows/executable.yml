@@ -22,7 +22,5 @@ jobs:
           version: ${{ matrix.julia-version }}
       - run: pwd
       - run: ls -R
-      - run: cd ..
-      - run: pwd
-      - run: ls -R
-      - run: julia -e "using PackageCompiler; create_app("VarianceComponentsHDFE", "VarianceComponentsHDFELinux")"
+      - run: julia deps/build.jl
+      -run: ls -R
