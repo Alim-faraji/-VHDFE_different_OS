@@ -25,7 +25,7 @@ jobs:
       - run: julia deps/build.jl
       - run: ls -R
       - name: Compress binaries
-      - run: tar -cvzf deps/VarianceComponentsHDFELinux.tar.gz deps/VarianceComponentsHDFELinux
+        run: tar -cvzf deps/VarianceComponentsHDFELinux.tar.gz deps/VarianceComponentsHDFELinux
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
