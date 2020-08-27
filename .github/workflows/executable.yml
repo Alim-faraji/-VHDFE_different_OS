@@ -23,4 +23,4 @@ jobs:
       - run: pwd
       - run: ls -R
       - run: julia deps/build.jl
-      -run: ls -R
+      - run: ls -R
