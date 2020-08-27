@@ -24,3 +24,12 @@ jobs:
       - run: ls -R
       - run: julia deps/build.jl
       - run: ls -R
+      - name: Compress binaries
+      - run: tar -cvzf deps/VarianceComponentsHDFELinux.tar.gz deps/VarianceComponentsHDFELinux
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /deps/VarianceComponentsHDFELinux.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
