@@ -28,7 +28,7 @@ jobs:
       - run: ls -R
       - name: Compress binaries
         run: tar -cvzf deps/VarianceComponentsHDFELinux.tar.gz deps/VarianceComponentsHDFELinux
-      - name: List current files
+      - name: List files
         run: ls -R
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
