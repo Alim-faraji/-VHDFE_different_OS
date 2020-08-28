@@ -101,7 +101,7 @@ function real_main()
     # cov_effects = parsed_args["cov_effects"]
     simulations = parsed_args["simulations"]
 
-    data = CSV.read(path;header=header)
+    data  = DataFrame!(CSV.File(path; header=header))
     id = data[:,id_idx]
     firmid = data[:,firmid_idx]
     y = data[:,y_idx]
