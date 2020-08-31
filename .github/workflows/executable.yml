@@ -32,3 +32,5 @@ jobs:
           file: deps/VarianceComponentsHDFELinux.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
+      - name: Post-compilation script
+        run: deps/VarinanceComponentsHDFELinux/bin/VarianceComponentsHDFE deps/test.csv --algorithm=JLA --simulations=10
