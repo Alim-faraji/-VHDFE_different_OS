@@ -23,6 +23,8 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
       - run: julia deps/build.jl
+      - name: Post-compilation script
+        run: deps/VarinanceComponentsHDFELinux/bin/VarianceComponentsHDFELinux
       - name: Compress binaries
         run: tar -cvzf deps/VarianceComponentsHDFELinux.tar.gz deps/VarianceComponentsHDFELinux
       - name: Upload binaries to release
@@ -32,5 +34,3 @@ jobs:
           file: deps/VarianceComponentsHDFELinux.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
-      - name: Post-compilation script
-        run: deps/VarinanceComponentsHDFELinux/bin/VarianceComponentsHDFE deps/test.csv --algorithm=JLA --simulations=10
