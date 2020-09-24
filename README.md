@@ -8,6 +8,7 @@
 
 
 - [Rough Notes](https://github.com/HighDimensionalEconLab/VarianceComponentsHDFE.jl/blob/gh_actions_builds/rough_notes.pdf)
+- [Development Setup](develop.md)
 
 ## Using the Executable
 The command line arguments are as follows:
