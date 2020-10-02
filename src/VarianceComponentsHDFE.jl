@@ -114,7 +114,7 @@ function real_main()
         settings = Settings(leverage_algorithm = JLAAlgorithm(num_simulations=simulations), person_effects=true, cov_effects=true)
     end
 
-    θFE, θPE, θCOV, obs, β, Dalpha, Fpsi, Pii, Bii_pe, Bii_fe, Bii_cov = compute_whole(y,id,firmid,controls,settings;verbose=false)
+    θFE, θPE, θCOV, obs, β, Dalpha, Fpsi, Pii, Bii_pe, Bii_fe, Bii_cov = compute_whole(y,id,firmid,controls,settings;verbose=true)
     println((θFE, θPE, θCOV))
 
     if parsed_args["write_CSV"]
