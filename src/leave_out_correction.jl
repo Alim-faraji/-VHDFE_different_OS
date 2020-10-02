@@ -63,7 +63,7 @@ function find_connected_set(y, idvar, firmidvar; verbose=false)
 
     cs=connected_components(G)
     if verbose == true
-        println("Largest Connected Set has been found")
+        println("Largest connected set has been found")
     end
     pos = indexin(  [  maximum(size.(cs,1))] , size.(cs,1) )[1]
     lcs=cs[pos]
@@ -1081,12 +1081,14 @@ function leave_out_estimation(y,id,firmid,controls,settings)
     pe=D * beta[1:N]
     fe=F*S * beta[N+1:N+J-1]
 
+    println("\n","Plug-in Variance Components:")
+
     σ2_ψ_AKM = var(fe)
-    println("Variance of Firm Effects: ", σ2_ψ_AKM )
+    println("Plug-in Variance of Firm Effects: ", σ2_ψ_AKM )
     σ2_α_AKM = var(pe)
-    println("Variance of Person Effects: ", σ2_α_AKM )
+    println("Plug-in Variance of Person Effects: ", σ2_α_AKM )
     σ2_ψα_AKM = cov(pe,-fe)
-    println("Covariance of Firm-Person Effects: ", σ2_ψα_AKM )
+    println("Plug-in Covariance of Firm-Person Effects: ", σ2_ψα_AKM, "\n")
 
 
     #Part 2: Compute Pii, Bii
@@ -1113,12 +1115,24 @@ end
 function compute_whole(y,id,firmid,controls,settings;verbose=false)
 
     # compute y, id firmid, controls, settings
+    verbose && println("Finding the leave-one-out connected set")
     obs,  y  , id , firmid  = find_connected_set(y,id,firmid;verbose=verbose)
     obs,  y  , id , firmid  = prunning_connected_set(y,id,firmid, obs;verbose=verbose)
     obs,  y  , id , firmid  = drop_single_obs(y,id,firmid, obs)
     controls == nothing ? nothing : controls = controls[obs,:]
 
-    # What happens with controls?
+    if verbose == true
+        # compute the number of movers
+        num_movers = length(unique(compute_movers(id,firmid).movers .* id))
+
+        println("\n","Summary statistics of the leave-one-out connected set:")
+        println("Number of observations: ", length(obs))
+        println("Number of workers: ", length(unique(id)))
+        println("Number of movers: ", num_movers)
+        println("Mean wage: ", mean(y))
+        println("Variance of wages: ", var(y))
+    end
+
     θFE, θPE, θCOV, β, Dalpha, Fpsi, Pii, Bii_pe, Bii_fe, Bii_cov = leave_out_estimation(y,id,firmid,controls,settings)
     return (θFE = θFE, θPE = θPE, θCOV = θCOV, obs = obs, β = β, Dalpha = Dalpha, Fpsi = Fpsi, Pii = Pii, Bii_pe = Bii_pe,
             Bii_fe = Bii_fe, Bii_cov = Bii_cov)
