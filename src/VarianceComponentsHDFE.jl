@@ -114,8 +114,12 @@ function real_main()
         settings = Settings(leverage_algorithm = JLAAlgorithm(num_simulations=simulations), person_effects=true, cov_effects=true)
     end
 
-    θFE, θPE, θCOV, obs, β, Dalpha, Fpsi, Pii, Bii_pe, Bii_fe, Bii_cov = compute_whole(y,id,firmid,controls,settings;verbose=false)
-    println((θFE, θPE, θCOV))
+    θFE, θPE, θCOV, obs, β, Dalpha, Fpsi, Pii, Bii_pe, Bii_fe, Bii_cov = compute_whole(y,id,firmid,controls,settings;verbose=true)
+
+    println("Bias-Corrected Variance Components:")
+    println("Bias-Corrected Variance of Firm Effects: $θFE")
+    println("Bias-Corrected Variance of Person Effects: $θPE")
+    println("Bias-Corrected Covariance of Firm-Person Effects: $θCOV")
 
     if parsed_args["write_CSV"]
 
