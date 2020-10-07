@@ -22,6 +22,7 @@ jobs:
         uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.julia-version }}
+      - run: julia --project=@. -e "using Pkg; Pkg.instantiate()"
       - run: julia --project=@. deps/build.jl
       - name: Post-compilation script
         run: deps/VarianceComponentsHDFELinux/bin/VarianceComponentsHDFE --help
