@@ -22,8 +22,6 @@ jobs:
         uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.julia-version }}
-      - name: List current files
-        run: ls -R
       - run: julia --project=@. deps/build.jl
       - name: Post-compilation script
         run: deps/VarianceComponentsHDFELinux/bin/VarianceComponentsHDFE --help
