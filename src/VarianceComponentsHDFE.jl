@@ -32,16 +32,16 @@ function parse_commandline()
         "path"
             help = "path to CSV file containing data"
             required = true
-        "--id"
-            help = "column index in CSV file for id"
+        "--first_id"
+            help = "column index in CSV file for the first ID (e.g. Person).  Use the most granular type."
             arg_type = Int
             default = 1
-        "--firmid"
-            help = "column index in CSV file for firmid"
+        "--second_id"
+            help = "column index in CSV file for the second ID (e.g. Firm).  Use the less granular type."
             arg_type = Int
             default = 2
-        "--y"
-            help = "column index in CSV file for y"
+        "--observation_id"
+            help = "column index in CSV file for observation (e.g. Wage)."
             arg_type = Int
             default = 4
         "--algorithm"
@@ -55,6 +55,14 @@ function parse_commandline()
         "--header"
             help = "CSV file contains header"
             action = :store_true
+        "--first_id_display"
+            help = "The display text associated with first_id (e.g. Person)."
+            arg_type = String
+            default = "Person"
+        "--second_id_display"
+            help = "The display text associated with second_id (e.g. Firm)"
+            arg_type = String
+            default = "Firm"
         #=
         "--person_effects"
             help = "compute person effects"
@@ -93,18 +101,20 @@ function real_main()
 
     path = parsed_args["path"]
     header = parsed_args["header"]
-    id_idx = parsed_args["id"]
-    firmid_idx = parsed_args["firmid"]
-    y_idx = parsed_args["y"]
+    first_idx = parsed_args["first_id"]
+    second_idx = parsed_args["second_id"]
+    observation_idx = parsed_args["observation_id"]
     algorithm = parsed_args["algorithm"]
     # person_effects = parsed_args["person_effects"]
     # cov_effects = parsed_args["cov_effects"]
     simulations = parsed_args["simulations"]
+    first_id_display = parsed_args["first_id_display"]
+    second_id_display = parsed_args["second_id_display"]
 
     data  = DataFrame!(CSV.File(path; header=header))
-    id = data[:,id_idx]
-    firmid = data[:,firmid_idx]
-    y = data[:,y_idx]
+    id = data[:,first_idx]
+    firmid = data[:,second_idx]
+    y = data[:,observation_idx]
 
     controls = nothing
 
@@ -117,9 +127,9 @@ function real_main()
     θFE, θPE, θCOV, obs, β, Dalpha, Fpsi, Pii, Bii_pe, Bii_fe, Bii_cov = compute_whole(y,id,firmid,controls,settings;verbose=true)
 
     println("Bias-Corrected Variance Components:")
-    println("Bias-Corrected Variance of Firm Effects: $θFE")
-    println("Bias-Corrected Variance of Person Effects: $θPE")
-    println("Bias-Corrected Covariance of Firm-Person Effects: $θCOV")
+    println("Bias-Corrected Variance of $first_id_display: $θPE")
+    println("Bias-Corrected Variance of $second_id_display: $θFE")
+    println("Bias-Corrected Covariance of $first_id_display-$second_id_display Effects: $θCOV")
 
     if parsed_args["write_CSV"]
 
