@@ -13,6 +13,7 @@ jobs:
           - '1.5'
         os:
           - ubuntu-latest
+          - windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
