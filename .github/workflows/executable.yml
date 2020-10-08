@@ -18,11 +18,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Compress binaries
-        run: tar -cvzf deps/vchdfe-${GITHUB_REF}-${{ matrix.os }}.tar.gz deps/vchdfe
+        run: tar -cvzf deps/vchdfe-${GITHUB_REF/refs\/tags\//}-${{ matrix.os }}.tar.gz deps/vchdfe
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: deps/vchdfe-${GITHUB_REF}-${{ matrix.os }}.tar.gz
+          file: deps/vchdfe-${GITHUB_REF/refs\/tags\//}-${{ matrix.os }}.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
