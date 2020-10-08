@@ -24,6 +24,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: deps/VarianceComponentsHDFELinux.tar.gz
+          file: deps/vchdfe-$GIT_TAG_NAME-${{ matrix.os }}.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
