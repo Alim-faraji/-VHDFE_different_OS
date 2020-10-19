@@ -22,7 +22,7 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2
       - name: Copy the test file into the tar file
-      - run: cp README.md deps/vchdfe/bin
+        run: cp README.md deps/vchdfe/bin
       - name: Compress binaries
         run: tar -cvzf deps/vchdfe-${{ github.event.release.tag_name }}-${{ matrix.os }}.tar.gz deps/vchdfe
       - name: Upload binaries to release
