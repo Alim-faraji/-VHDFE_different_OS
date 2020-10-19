@@ -1,7 +1,9 @@
 name: Executable
 
 on:
-  - push
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
