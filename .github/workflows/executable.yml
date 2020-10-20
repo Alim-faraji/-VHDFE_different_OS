@@ -23,6 +23,8 @@ jobs:
       - name: Get latest release version number
         id: get_version
         uses: battila7/get-version-action@v2
+      - name: make new directory
+        run: mkdir deps/vchdfe/bin/
       - name: Copy the test file into the tar file
         run: cp README.md deps/vchdfe/bin/README.md
       - name: Remove the files from the precompilation
