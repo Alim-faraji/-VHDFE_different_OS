@@ -22,4 +22,4 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2
       - name: tag number
-        run : echo ${{ github.ref#refs/tags/ }}
+        run : echo ${GITHUB_REF#refs/tags/}
