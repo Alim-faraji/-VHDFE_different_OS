@@ -1,7 +1,9 @@
 name: Executable
 
 on:
-  push
+  push:
+    tags: 
+      - 'v*'
 
 jobs:
   build:
@@ -20,4 +22,4 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2
       - name: tag number
-        run : echo "hello world"
+        run : echo ${{ github.ref }}
