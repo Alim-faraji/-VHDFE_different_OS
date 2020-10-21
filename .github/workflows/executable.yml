@@ -1,9 +1,7 @@
 name: Executable
 
 on:
-  push:
-    tags:
-      - 'v*'
+  push
 
 jobs:
   build:
@@ -15,8 +13,6 @@ jobs:
           - '1.5'
         os:
           - ubuntu-latest
-          - windows-latest
-          - macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -24,13 +20,4 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2
       - name: tag number
-        run : echo ${{ github.event.release.tag_name }}
-      - name: Compress binaries
-        run: tar -cvzf deps/vchdfe-${{ github.event.release.tag_name }}-${{ matrix.os }}.tar.gz deps/vchdfe
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: deps/vchdfe-${{ github.event.release.tag_name }}-${{ matrix.os }}.tar.gz
-          tag: ${{ github.ref }}
-          overwrite: true
+        run : echo "hello world"
