@@ -18,8 +18,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Get latest release version number
+      - name: Get the version
         id: get_version
-        uses: battila7/get-version-action@v2
-      - name: tag number
-        run : echo ${{ github.event.release.tag_name }}
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: print name
+        run: echo ${{ steps.get_version.outputs.VERSION }}
