@@ -23,12 +23,8 @@ jobs:
       - name: Get latest release version number
         id: get_version
         uses: battila7/get-version-action@v2
-      - name: make new directory
-        run: mkdir deps/vchdfe/bin/
-      - name: Copy the test file into the tar file
-        run: cp README.md deps/vchdfe/bin/README.md
-      - name: Remove the files from the precompilation
-        run: rm deps/vchdfe/bin/README.md
+      - name: tag number
+        run : echo ${{ github.event.release.tag_name }}
       - name: Compress binaries
         run: tar -cvzf deps/vchdfe-${{ github.event.release.tag_name }}-${{ matrix.os }}.tar.gz deps/vchdfe
       - name: Upload binaries to release
